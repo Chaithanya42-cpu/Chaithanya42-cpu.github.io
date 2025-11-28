@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CRM Tracker — Clean Notes</title>
+  <title>CRM Tracker — Clean Notes (Sheets)</title>
   <style>
     :root{--bg:#f7f9fb;--card:#ffffff;--muted:#6b7280;--accent:#2563eb;--border:rgba(15,23,42,0.06)}
     *{box-sizing:border-box}
@@ -29,6 +29,7 @@
     @media (max-width:1100px){.layout{grid-template-columns:1fr 300px;}.submenu{display:none}}
     @media (max-width:700px){.layout{grid-template-columns:1fr;}.panel{height:auto}}
     .actions{display:flex;gap:8px;margin-top:8px}
+    .status{font-size:13px;color:#374151;margin-left:8px}
   </style>
 </head>
 <body>
@@ -36,11 +37,11 @@
     <div class="brand">
       <div class="logo">CT</div>
       <div>
-        <div class="title">CRM Tracker — Clean Notes</div>
-        <div class="small">Main menu → sub-menu → notepad. Notes auto-save locally.</div>
+        <div class="title">CRM Tracker — Clean Notes (Sheets)</div>
+        <div class="small">Notes auto-save to Google Sheets (and local fallback).</div>
       </div>
     </div>
-    <div class="small">Storage: <strong id="storageInfo">localStorage</strong></div>
+    <div class="small">Storage: <strong id="storageInfo">Google Sheets + localStorage</strong></div>
   </header>
 
   <div class="layout">
@@ -68,6 +69,7 @@
         <div>
           <div id="pageTitle" style="font-size:18px;font-weight:600">Designs</div>
           <div id="pageSubtitle" class="small">Select a sub-item to open its notepad.</div>
+          <div class="status" id="lastSync">Last sync: —</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <button id="saveBtn">Save</button>
@@ -82,9 +84,17 @@
     </main>
   </div>
 
-  <footer>CRM Tracker — local notes. Export/Import to move data between devices.</footer>
+  <footer>CRM Tracker — notes saved to Google Sheets (keep secret private). Export/Import available.</footer>
 
   <script>
+    // -----------------------------
+    // CONFIG - replace if needed
+    // -----------------------------
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbys9ftTuVdHGX64NHILkkqI7UiKcijCmmgiXmHcJY8LgYH0U5ZcWOIMizsc2GLubupmXQ/exec';
+    const SHEETS_SECRET = 's3cR3t_9b2f-!xYz';
+    const STORAGE_KEY = 'crm_tracker_notes_v1';
+    // -----------------------------
+
     // Main categories and submenus
     const categories = [
       'Channels','Purpose','Journey Type','References',
@@ -118,7 +128,6 @@
       'Technical Issues': ['Open','In Progress','Resolved','Logs','Notes'],
       'Technical Advantages': ['Ideas','Integrations','Automations','Notes','Results'],
 
-      // New single-notepad categories
       'Note Taking': ['Notes'],
       'Planning': ['Notes']
     };
@@ -135,8 +144,7 @@
     const removeSub = document.getElementById('removeSub');
     const exportAllBtn = document.getElementById('exportAll');
     const importBtn = document.getElementById('importBtn');
-
-    const STORAGE_KEY = 'crm_tracker_notes_v1';
+    const lastSync = document.getElementById('lastSync');
 
     let state = {
       selectedCategory: categories[0],
@@ -144,12 +152,53 @@
       data: {} // {category:{sub:{text:''}}}
     };
 
+    // -------------------------
+    // LocalStorage helpers
+    // -------------------------
     function loadFromStorage(){
       try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) state.data = JSON.parse(raw); }catch(e){console.error(e)}
     }
-    function saveToStorage(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data)); flashSaved(); }catch(e){console.error(e)} }
-    function flashSaved(){ pageTitle.style.opacity=0.6; setTimeout(()=>pageTitle.style.opacity=1,300); }
+    function saveToStorage(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data)); }catch(e){console.error(e)} }
 
+    // -------------------------
+    // Google Sheets helpers
+    // -------------------------
+    async function saveToSheet(category, sub, text){
+      try {
+        const payload = { secret: SHEETS_SECRET, category: category, sub: sub, text: text };
+        const resp = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if(data && data.success){
+          lastSync.textContent = 'Last sync: ' + new Date().toLocaleString();
+        } else {
+          console.warn('saveToSheet response', data);
+        }
+        return data;
+      } catch (err) {
+        console.error('saveToSheet error', err);
+        return { success: false, error: String(err) };
+      }
+    }
+
+    async function loadFromSheet(category, sub){
+      try {
+        const url = `${WEB_APP_URL}?action=get&category=${encodeURIComponent(category)}&sub=${encodeURIComponent(sub)}`;
+        const resp = await fetch(url, { method: 'GET' });
+        const data = await resp.json();
+        return data;
+      } catch (err) {
+        console.error('loadFromSheet error', err);
+        return { success: false, error: String(err) };
+      }
+    }
+
+    // -------------------------
+    // UI rendering
+    // -------------------------
     function renderMenu(filter=''){
       menuList.innerHTML='';
       categories.filter(c=>c.toLowerCase().includes(filter.toLowerCase())).forEach(cat=>{
@@ -188,13 +237,49 @@
       return state.data[state.selectedCategory][state.selectedSub];
     }
 
-    function loadNote(){ const obj = getCurrentObj(); noteArea.value = obj.text || ''; }
-    function saveCurrent(){ const obj = getCurrentObj(); obj.text = noteArea.value; saveToStorage(); }
+    // -------------------------
+    // Save / Load logic
+    // -------------------------
+    async function saveCurrent(){
+      // local backup
+      const obj = getCurrentObj();
+      obj.text = noteArea.value;
+      saveToStorage();
 
+      // remote save (non-blocking)
+      saveToSheet(state.selectedCategory, state.selectedSub, noteArea.value)
+        .then(res => {
+          if(!res || !res.success) console.warn('Remote save failed', res);
+        }).catch(err => console.error('Remote save error', err));
+    }
+
+    async function loadNote(){
+      // try remote first
+      try {
+        const remote = await loadFromSheet(state.selectedCategory, state.selectedSub);
+        if(remote && remote.success && remote.record){
+          noteArea.value = remote.record.text || '';
+          // sync to local
+          if(!state.data[state.selectedCategory]) state.data[state.selectedCategory] = {};
+          state.data[state.selectedCategory][state.selectedSub] = { text: noteArea.value };
+          saveToStorage();
+          return;
+        }
+      } catch (e) {
+        console.warn('Remote load failed, using local', e);
+      }
+      // fallback local
+      const obj = getCurrentObj();
+      noteArea.value = obj.text || '';
+    }
+
+    // -------------------------
+    // Events & actions
+    // -------------------------
     noteArea.addEventListener('input', debounce(saveCurrent,700));
     saveBtn.onclick = saveCurrent;
 
-    clearBtn.onclick = ()=>{ if(confirm('Clear notes for "'+state.selectedCategory+' / '+state.selectedSub+'"?')){ if(state.data[state.selectedCategory]) delete state.data[state.selectedCategory][state.selectedSub]; noteArea.value=''; saveToStorage(); } }
+    clearBtn.onclick = ()=>{ if(confirm('Clear notes for "'+state.selectedCategory+' / '+state.selectedSub+'"?')){ if(state.data[state.selectedCategory]) delete state.data[state.selectedCategory][state.selectedSub]; noteArea.value=''; saveToStorage(); saveToSheet(state.selectedCategory, state.selectedSub, ''); } }
 
     addSub.onclick = ()=>{ const name = prompt('New sub-item name'); if(!name) return; const arr = defaultSubsections[state.selectedCategory] || []; arr.push(name); defaultSubsections[state.selectedCategory]=arr; renderSubmenu(); selectSub(name); }
     removeSub.onclick = ()=>{ if(!confirm('Remove sub-item "'+state.selectedSub+'" from '+state.selectedCategory+'?')) return; const arr = defaultSubsections[state.selectedCategory] || []; defaultSubsections[state.selectedCategory] = arr.filter(x=>x!==state.selectedSub); if(state.data[state.selectedCategory]) delete state.data[state.selectedCategory][state.selectedSub]; const newSub = (defaultSubsections[state.selectedCategory] && defaultSubsections[state.selectedCategory][0]) || 'Notes'; selectSub(newSub); saveToStorage(); }
@@ -208,9 +293,11 @@
     document.addEventListener('keydown', (e)=>{ if((e.ctrlKey||e.metaKey) && e.key==='s'){ e.preventDefault(); saveCurrent(); } });
 
     // initial
-    loadFromStorage(); renderMenu(); renderSubmenu(); selectCategory(state.selectedCategory);
-    document.getElementById('storageInfo').textContent = STORAGE_KEY + ' (localStorage in this browser)';
+    loadFromStorage();
+    renderMenu();
+    renderSubmenu();
+    selectCategory(state.selectedCategory);
+
   </script>
 </body>
 </html>
-
