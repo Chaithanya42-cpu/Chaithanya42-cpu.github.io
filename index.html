@@ -1,303 +1,861 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CRM Tracker — Clean Notes (Sheets)</title>
+  <title>QuickCricket — Pro Broadcast</title>
   <style>
-    :root{--bg:#f7f9fb;--card:#ffffff;--muted:#6b7280;--accent:#2563eb;--border:rgba(15,23,42,0.06)}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:var(--bg);color:#0f1724}
-    header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--card)}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#60a5fa,#7c3aed);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
-    .title{font-size:16px;font-weight:600}
-    .layout{display:grid;grid-template-columns:320px 280px 1fr;gap:18px;max-width:1400px;margin:20px auto;padding:0 16px}
-    .panel{background:var(--card);border-radius:12px;padding:12px;height:calc(100vh - 120px);overflow:auto;border:1px solid var(--border)}
-    .main{min-height:calc(100vh - 120px)}
-    .search{display:flex;gap:8px;margin-bottom:10px}
-    .search input{flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:inherit}
-    .menu{display:flex;flex-direction:column;gap:8px}
-    .menu button{background:transparent;border:1px solid var(--border);padding:10px 12px;border-radius:8px;color:var(--muted);text-align:left;cursor:pointer}
-    .menu button.active{background:linear-gradient(90deg,rgba(37,99,235,0.06),rgba(124,58,237,0.03));border-color:rgba(37,99,235,0.16);color:#0b2447}
-    .submenu-list{display:flex;flex-direction:column;gap:6px}
-    .subitem{padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;text-align:left}
-    .subitem.active{background:rgba(37,99,235,0.08);color:#0b2447;border-color:rgba(37,99,235,0.12);font-weight:600}
-    .small{font-size:13px;color:var(--muted)}
-    textarea{width:100%;height:calc(100vh - 220px);padding:14px;border-radius:10px;border:1px solid var(--border);background:transparent;color:inherit;font-size:15px;line-height:1.5;resize:vertical}
-    footer{padding:14px 24px;color:var(--muted);font-size:13px;text-align:center}
-    @media (max-width:1100px){.layout{grid-template-columns:1fr 300px;}.submenu{display:none}}
-    @media (max-width:700px){.layout{grid-template-columns:1fr;}.panel{height:auto}}
-    .actions{display:flex;gap:8px;margin-top:8px}
-    .status{font-size:13px;color:#374151;margin-left:8px}
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#ffb020;--muted:#94a3b8}
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial}
+    body{margin:0;background:linear-gradient(180deg,#071029,#0f1724);color:#e6eef8}
+    .container{max-width:1000px;margin:24px auto;padding:18px}
+    .card{background:rgba(255,255,255,0.03);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.04)}
+    h1{margin:0 0 8px;font-size:22px}
+    .small{color:var(--muted);font-size:13px}
+    .steps{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+    .step{padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.02);cursor:pointer}
+    .step.active{background:linear-gradient(90deg,rgba(255,176,32,0.14),rgba(255,176,32,0.06));border:1px solid rgba(255,176,32,0.12);color:#fff}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btn{background:var(--accent);border:none;padding:10px 12px;border-radius:8px;color:#081020;cursor:pointer;font-weight:700}
+    .btn:disabled{opacity:0.5;cursor:not-allowed;filter:grayscale(1)}
+    .option-list{display:flex;flex-direction:column;gap:8px}
+    .option{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);cursor:pointer;background:transparent}
+    .option.selected{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
+    .players{display:flex;flex-direction:column;gap:6px}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .field{margin-bottom:10px}
+    .row{display:flex;gap:8px;align-items:center}
+    .number-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .num{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.02);cursor:pointer}
+    .num.sel{background:var(--accent);color:#081020;font-weight:800}
+    .scoreboard{background:rgba(0,0,0,0.25);padding:12px;border-radius:10px}
+    .log{max-height:220px;overflow:auto;padding:8px;background:rgba(255,255,255,0.02);border-radius:8px}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1200}
+    .modal{width:820px;max-width:95%;background:var(--card);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(0,0,0,0.6);color:#e6eef8}
+    .modal h2{margin-top:0}
+    .table{width:100%;border-collapse:collapse;margin-top:8px}
+    .table th,.table td{padding:8px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.03);font-size:14px;color:#e6eef8}
+    .badge{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;font-weight:700}
+    .toolbar-right{display:flex;gap:8px;align-items:center}
+    .muted{color:var(--muted)}
+    .commentary{margin-top:8px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);font-style:italic;min-height:60px;transition:all 0.3s ease}
+    .commentary.speaking{border-left:3px solid var(--accent);background:rgba(255,176,32,0.05)}
+    .controls{display:flex;gap:8px;align-items:center}
+    .select{padding:6px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);color:#e6eef8}
+    @media (max-width:700px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <div class="logo">CT</div>
-      <div>
-        <div class="title">CRM Tracker — Clean Notes (Sheets)</div>
-        <div class="small">Notes auto-save to Google Sheets (and local fallback).</div>
-      </div>
-    </div>
-    <div class="small">Storage: <strong id="storageInfo">Google Sheets + localStorage</strong></div>
-  </header>
-
-  <div class="layout">
-    <aside class="panel">
-      <div class="search"><input id="searchInput" placeholder="Filter categories..." /></div>
-      <div class="small" style="margin-bottom:8px">Categories</div>
-      <div class="menu" id="menuList"></div>
-      <div class="actions">
-        <button id="exportAll">Export</button>
-        <button id="importBtn">Import</button>
-      </div>
-    </aside>
-
-    <aside class="panel" id="submenuPane">
-      <div class="small" style="margin-bottom:8px">Sub-Menu</div>
-      <div id="submenuList" class="submenu-list"></div>
-      <div class="actions">
-        <button id="addSub">Add</button>
-        <button id="removeSub">Remove</button>
-      </div>
-    </aside>
-
-    <main class="panel main">
-      <div style="display:flex;justify-content:space-between;align-items:center">
+  <div class="container">
+    <div class="card">
+      <div class="toolbar">
         <div>
-          <div id="pageTitle" style="font-size:18px;font-weight:600">Designs</div>
-          <div id="pageSubtitle" class="small">Select a sub-item to open its notepad.</div>
-          <div class="status" id="lastSync">Last sync: —</div>
+          <h1>QuickCricket — Broadcast Edition</h1>
+          <div class="small">Real-time sync. Buttons lock while speaking.</div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button id="saveBtn">Save</button>
-          <button id="clearBtn">Clear</button>
+        <div class="toolbar-right">
+          <div class="controls">
+            <label class="small">Style
+              <select id="commentStyle" class="select">
+                <option value="casual">Casual</option>
+                <option value="formal">Formal</option>
+                <option value="excited">Excited</option>
+              </select>
+            </label>
+            <label class="small">Length
+              <select id="commentLength" class="select">
+                <option value="short">Short</option>
+                <option value="medium">Medium</option>
+                <option value="long">Long</option>
+              </select>
+            </label>
+            <button id="scoreBtn" class="btn" title="Open scoreboard">Scoreboard</button>
+            <button id="restart" class="btn">Restart</button>
+          </div>
         </div>
       </div>
 
-      <div style="margin-top:14px">
-        <label class="small">Notes</label>
-        <textarea id="noteArea" placeholder="Type notes for the selected category → sub-item (auto-saved)"></textarea>
-      </div>
-    </main>
+      <div class="steps" id="steps"></div>
+
+      <div id="page"></div>
+    </div>
   </div>
 
-  <footer>CRM Tracker — notes saved to Google Sheets (keep secret private). Export/Import available.</footer>
+  <div id="scoreModal" style="display:none" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Scoreboard</h2>
+        <div style="display:flex;gap:8px">
+          <button id="closeScore" class="btn">Close</button>
+        </div>
+      </div>
+      <div style="margin-top:8px" id="scoreContent"></div>
+    </div>
+  </div>
 
   <script>
-    // -----------------------------
-    // CONFIG - replace if needed
-    // -----------------------------
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbys9ftTuVdHGX64NHILkkqI7UiKcijCmmgiXmHcJY8LgYH0U5ZcWOIMizsc2GLubupmXQ/exec';
-    const SHEETS_SECRET = 's3cR3t_9b2f-!xYz';
-    const STORAGE_KEY = 'crm_tracker_notes_v1';
-    // -----------------------------
+    // --- Audio Logic (Async/Promise based for perfect sync) ---
+    let speechEnabled = ('speechSynthesis' in window);
+    let isGameBusy = false; // Locks UI while speaking
 
-    // Main categories and submenus
-    const categories = [
-      'Channels','Purpose','Journey Type','References',
-      'Designs','Copies','Templates','Getting Approval from Client',
-      'Client Segments','Campaign/Journeys Analysis','Campaign Execution',
-      'RFM','Cohort','Funnel','Metrics','A/B Testing','Flow Analysis','NPS',
-      'Technical Issues','Technical Advantages',
-      'Note Taking','Planning'
+    function speakAsync(text) {
+      return new Promise((resolve) => {
+        if (!speechEnabled || !text) { resolve(); return; }
+        
+        // Cancel previous only if it's stuck, otherwise queue handles flow
+        // window.speechSynthesis.cancel(); 
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        const style = document.getElementById('commentStyle') ? document.getElementById('commentStyle').value : 'casual';
+        
+        if (style === 'excited') { utterance.rate = 1.15; utterance.pitch = 1.1; }
+        else if (style === 'formal') { utterance.rate = 0.95; utterance.pitch = 0.85; }
+        else { utterance.rate = 1.0; utterance.pitch = 1.0; }
+
+        utterance.onend = () => { resolve(); };
+        utterance.onerror = () => { resolve(); }; // Resolve on error to prevent hanging
+
+        window.speechSynthesis.speak(utterance);
+      });
+    }
+
+    function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
+
+    // --- Game data & state ---
+    const TEAMS = ['Mumbai','Chennai','Kolkata','Delhi','Bengaluru','Hyderabad','Punjab','Rajasthan'];
+    const OVER_OPTIONS = ['10','15','20','50','Test'];
+    const VENUES = ['Wankhede','Eden Gardens','MCA','Arun Jaitley','Chinnaswamy','Rajiv Gandhi','PCA','Nehru Stadium'];
+
+    let state = { pageIndex:0, pages:['Play','Select Team','Select Overs','Select Venue','Toss','Choose After Toss','Lineup','Game'], team:null, opponent:null, overs:null, venue:null, tossWinner:null, userChoiceAfterToss:null, userBattingFirst:null, players:[], opponentPlayers:[], selectedBatter:null, selectedBowler:null, inningsBalls:0, maxBalls:0, wickets:0, score:0, logs:[], latestResult:'', selectedNumber:null, strikerIndex:0, nonStrikerIndex:1, nextBatsmanIndex:2, currentBowlerIndex:0, inningsNumber:1, firstInningsScore:0, target:null, partnerships: {1: [], 2: []}, currentPartnership: {runs:0, batsmen:[]}, autoPlay:false, inningsWicketTarget:null };
+
+    // --- NEW: Extended commentary packs (20+ variants each) ---
+    const EXT = {
+      newBowler: [
+        // Original 10 lines
+        'Here comes {bowler}, the new man steaming in — let’s see what he has in store.',
+        '{bowler} is the change — fresh-arm, new plan in place.',
+        'Change of pace now; {bowler} takes the ball from the pavilion end.',
+        'The captain turns to {bowler} — can he break this partnership?',
+        '{bowler} trots in — different angle, different challenge for {batsman}.',
+        'A new bowling option: {bowler} will bowl the next over with intent.',
+        'Brace yourselves — {bowler} is coming on to bowl.',
+        'The field is re-set as {bowler} replaces the outgoing bowler.',
+        '{bowler} to bowl — fresh energy, fresh lines.',
+        'Now bowling: {bowler}. The batsman faces a new proposition.',
+        // New 10 lines
+        'A change in the bowling attack. {bowler} is coming on to bowl.',
+        'The captain brings {bowler} into the attack, looking for a breakthrough.',
+        '{bowler} has been handed the ball. Fresh legs in the field.',
+        'It is time for {bowler} to roll his arm over.',
+        '{bowler} marks his run up. Can he make an impact?',
+        'Into the attack now, it is {bowler}.',
+        '{bowler} replaces the previous bowler from the pavilion end.',
+        'Here comes {bowler}, hoping to use these conditions.',
+        'Strategic change: {bowler} enters the attack.',
+        '{bowler} to bowl the next over.'
+      ],
+
+      strikerOnStrike: [
+        // Original 10 lines
+        '{batsman} on strike now — watch the trigger movement and footwork.',
+        'All eyes on {batsman}, who takes guard and prepares for the next delivery.',
+        '{batsman} looks settled — rhythm in his feet before the ball.',
+        '{batsman} takes the strike; expect an attacking intent shortly.',
+        '{batsman} taps his bat on the ground and waits for the bowler.',
+        '{batsman} is at the crease — can he up the scoring rate?',
+        '{batsman} on strike, the scoreboard pressure on him to deliver.',
+        '{batsman} looks ready for the short ball — eyes focused.',
+        '{batsman} is set on strike; timing looks good today.',
+        '{batsman} takes strike — a composed approach so far.',
+        // New 10 lines
+        '{batsman} takes guard.',
+        '{batsman} is on strike.',
+        'All eyes on {batsman}.',
+        '{batsman} readies himself.',
+        'Strike is with {batsman}.',
+        '{batsman} taps the bat, ready to face.',
+        '{batsman} looks focused.',
+        'Can {batsman} find a gap here?',
+        '{batsman} settles into his stance.',
+        'It is {batsman} to face.'
+      ],
+
+      bowlerToBatsman: [
+        // Original 10 lines
+        '{bowler} to {batsman} — runs on the board and the field is spread.',
+        'Short and wide from {bowler} to {batsman}; watch for the pull.',
+        'Flatter seam from {bowler} at {batsman}; timing will tell.',
+        'Steady line by {bowler} to {batsman}; trying to cramp him for room.',
+        '{bowler} angles it across {batsman} — tempting the drive.',
+        '{bowler} goes around the wicket to {batsman}; changes the line.',
+        '{bowler} pitching it up to {batsman}; inviting the lofted shot.',
+        'A slower one from {bowler} to {batsman} — deceptive in the hand.',
+        '{bowler} bowls a cutter at {batsman}; movement off the seam possible.',
+        '{bowler} with a fuller length at {batsman}; watch the boundary line.',
+        // New 10 lines
+        '{bowler} steams in to {batsman}.',
+        '{bowler} runs in, bowling to {batsman}.',
+        'Here is {bowler} to {batsman}.',
+        '{bowler} loads up and delivers to {batsman}.',
+        '{bowler} over the wicket to {batsman}.',
+        '{bowler} comes around the wicket to {batsman}.',
+        '{bowler} with a delivery to {batsman}.',
+        '{bowler} challenges {batsman}.',
+        '{bowler} hits the deck hard against {batsman}.',
+        '{bowler} releases the ball towards {batsman}.'
+      ],
+
+      milestoneMention: [
+        // Original 10 lines
+        '{batsman} is now on {score} — moving nicely towards the milestone.',
+        'At {score} runs, {batsman} looks comfortable and confident.',
+        '{batsman} reaches {score} and the crowd notice his rhythm.',
+        '{batsman} on {score} — that’s a good foundational knock.',
+        'He moves to {score}; the scoreboard frames his contribution clearly.',
+        '{batsman} has raced to {score} — steady hands and clear intent.',
+        '{batsman} at {score}, building an innings with patience.',
+        '{batsman} on {score} — a milestone is looming.',
+        'With {score} to his name, {batsman} is looking in fine touch.',
+        '{batsman} reaches {score} and resets the innings',
+        // New 10 lines
+        '{batsman} is inching closer to a milestone on {score}.',
+        'Batting on {score}, {batsman} looks very solid.',
+        '{batsman} moves to {score}.',
+        'C{batsman} is building a fine innings, currently on {score}.',
+        '{batsman} on {score}, pacing himself well.',
+        'Approaching a landmark, {batsman} is on {score}.',
+        '{batsman} has reached {score}, looking for more.',
+        'Sensible batting from {batsman}, he is on {score}.',
+        '{batsman} sits on {score}.',
+        'The crowd applauds as {batsman} reaches {score}.'
+      ],
+
+      // This is now redundant but kept for legacy fallback if MILESTONE_LINES logic fails.
+      milestoneCelebrate: [
+        // Original 10 lines
+        'Wonderful half-century for {batsman}! A composed, confident knock.',
+        'A superb milestone — {batsman} completes a brilliant fifty!',
+        'What a landmark for {batsman} — a magnificent fifty.',
+        'That’s a classy half-century by {batsman}; timing and placement superb.',
+        'Fifty for {batsman}! He has anchored the innings superbly.',
+        'A landmark reached — {batsman} celebrates his fifty in style.',
+        'Fantastic knock — {batsman} brings up a fine fifty.',
+        'A well-earned fifty for {batsman}, full credit to his temperament.',
+        'Magnificent fifty for {batsman}! The innings needed that.',
+        'Splendid play — {batsman} reaches his fifty with authority.',
+        // New 10 lines
+        'Fifty for {batsman}! A wonderful knock.',
+        'That is a brilliant half-century from {batsman}.',
+        'He raises his bat! 50 runs for {batsman}.',
+        'Superb batting! {batsman} reaches his fifty.',
+        'A quality innings, fifty up for {batsman}.',
+        'Well played! {batsman} acknowledges the applause for his fifty.',
+        'Half-century achieved by {batsman}, class act.',
+        'Fifty runs to {batsman}, the dugout is on its feet.',
+        'A fighting fifty from {batsman}.',
+        'Milestone reached! {batsman} gets to 50.'
+      ],
+
+      wicketFall: [
+        // Original 10 lines
+        '{batsman} departs for {runs} — {bowler} claims another scalp.',
+        'He’s gone! {batsman} is out and {bowler} celebrates his {wicks} wicket(s).',
+        '{batsman} walks back after contributing {runs}; {bowler} gets the reward.',
+        'OUT! Caught brilliantly — {batsman} departs for {runs}.',
+        '{bowler} strikes — {batsman} is dismissed for {runs}.',
+        'Breakthrough! {batsman} gone, that’s {bowler}\'s wicket.',
+        '{batsman} is back in the pavilion after scoring {runs} — well bowled by {bowler}.',
+        'A key wicket — {batsman} out for {runs}; {bowler} rejoices.',
+        '{batsman} has to go; ends on {runs} runs, bowled by {bowler}.',
+        'Dismissed! {batsman} departs at {runs}, {bowler} with the big moment.',
+        // New 10 lines
+        'WICKET! {batsman} has to go!',
+        '{bowler} strikes! {batsman} is out.',
+        'Gone! {batsman} departs for {runs}.',
+        'Edged and taken! {batsman} is walking back.',
+        'Clean bowled! {bowler} gets through the defense of {batsman}.',
+        'Up in the air and caught! {batsman} is out.',
+        'The finger goes up! {batsman} is out LBW.',
+        '{bowler} gets his man, {batsman} is dismissed.',
+        'A massive wicket! {batsman} goes for {runs}.',
+        'That is the end of {batsman}, {bowler} celebrates.'
+      ],
+
+      weatherLines: [
+        // Original 10 lines
+        'A hazy afternoon at {venue}; the outfield looks quick and the breeze is steady.',
+        'Cloud cover building at {venue} — there may be movement early on.',
+        'The sun is bright and the pitch is drying out; scoring likely to be easier.',
+        'A cool breeze across the ground; bowlers might enjoy the swing.',
+        'Humidity is high at {venue} — the ball might grip a touch for spinners later.',
+        'Light drizzle earlier has left the outfield bit tacky; fielders need to be careful.',
+        'Warm conditions and clear skies — a typical day for batting.',
+        'A windy day here; boundary balls can carry if struck well.',
+        'A bright, clear sky — not much for the seamers with the overheads calm.',
+        'Quick outfield and bright sunshine — chances of boundaries are up.',
+        // New 10 lines
+        'Clouds gathering over {venue}.',
+        'It is a sunny afternoon here at {venue}.',
+        'The breeze is picking up across the ground.',
+        'Overcast conditions, might help the swing bowlers.',
+        'Beautiful batting conditions today.',
+        'The outfield is lightning fast today.',
+        'Humidity is high, players are sweating.',
+        'Perfect weather for a game of cricket.',
+        'Sun beating down on the pitch.',
+        'A bit of haze around the stadium.'
+      ],
+
+      pitchLines: [
+        // Original 10 lines
+        'The pitch here looks hard and true — batsmen should find the pace.',
+        'A touch of grass on the wicket, offering some assistance to fast bowlers.',
+        'This surface is a batting strip early on — true bounce and little lateral movement.',
+        'It has a bit of grip; spinners may come into play as it wears.',
+        'Dry and cracking in places; expect variable bounce later in the day.',
+        'A balanced wicket — something for both bat and ball if used well.',
+        'The wicket has good carry to the bat, so drives may be rewarded.',
+        'Underfoot isn\'t soft — the bowlers might get consistent bounce.',
+        'Slight tackiness could favour slow bowlers searching for purchase.',
+        'A lively strip offering bounce early; keep an eye on short deliveries.',
+        // New 10 lines
+        'The pitch looks hard and dry.',
+        'Some cracks opening up on the surface.',
+        'Good carry to the keeper so far.',
+        'The ball is coming onto the bat nicely.',
+        'A bit of variable bounce on this strip.',
+        'Spinners might get some purchase later.',
+        'A batting paradise here.',
+        'Grass on the wicket offering some movement.',
+        'The pitch is slowing down a touch.',
+        'Even bounce, good for strokeplay.'
+      ],
+
+      projectedScore: [
+        // Original 10 lines
+        '{team} look on course for a competitive total — projected around {proj} runs.',
+        'If the momentum holds, {team} could post about {proj} on this pitch.',
+        'At this rate, {team} might finish near {proj}; good platform if they accelerate.',
+        'The scoreboard suggests a par score around {proj} for {team}.',
+        '{team} are pacing for roughly {proj} — keep wickets, they can push later.',
+        'Projection sits close to {proj} given the current rate and wickets.',
+        'A solid middle-order could push {team} to around {proj} off this wicket.',
+        '{team} on course for near {proj} if they continue at this run rate.',
+        'Projected total hovers around {proj} — still plenty of cricket left.',
+        'Scores like {proj} look likely if these conditions persist.',
+        // New 10 lines
+        'Projected score is around {proj}.',
+        '{team} looking to set a target of {proj}.',
+        'At this rate, they finish near {proj}.',
+        'Par score looks to be {proj}.',
+        'They need to push to reach {proj}.',
+        '{team} tracking towards {proj}.',
+        'Can they get past {proj}?',
+        'Looking at a total of {proj} plus.',
+        'The run rate suggests a score of {proj}.',
+        '{team} eyeing {proj} runs.'
+      ],
+
+      chaseDefend: [
+        // Original 10 lines
+        '{team} are looking to chase this down; controlled aggression required.',
+        '{team} will be happy to chase — clear plan is needed from the top order.',
+        'Chasing this target requires measured intent and smart running.',
+        '{team} need to balance risk and reward — they look set to chase.',
+        'Defend the target? The bowling side must tighten lines and lengths.',
+        'If defending, the fielding side will look to choke the scoring and take wickets.',
+        'To chase: build partnerships, not heroics; experience will matter.',
+        'To defend: bowl in the corridor and attack the stumps; pressure will tell.',
+        'Chase looks achievable but one or two quick wickets can change that.',
+        'Defending needs discipline — stop the boundaries and force singles.',
+        // New 10 lines
+        '{team} needs to keep wickets in hand for this chase.',
+        'The required rate is climbing.',
+        'They are cruising in this chase.',
+        'Defending well at the moment.',
+        'The fielding captain is moving his fielders.',
+        'Tight bowling is making the chase hard.',
+        'A partnership is key for this chase.',
+        'They need a big over to help the chase.',
+        'Pressure building on the batting side.',
+        'The bowling side is on top.'
+      ],
+
+      pastPerf: [
+        // Original 10 lines
+        '{batsman} has scored consistently recently — his last five innings show good form.',
+        '{bowler} took crucial wickets in his previous game; momentum is on his side.',
+        '{batsman} averages well on pitches like this — confidence high.',
+        '{bowler} bowled a tight spell last match; expect him to look for the same control.',
+        'In recent games, {batsman} has been strong through the off-side.',
+        'Last time at this venue, {bowler} returned notable figures — keep an eye.',
+        '{batsman} played a match-winning knock recently; that experience counts under pressure.',
+        '{bowler} has a habit of striking early — his previous match suggests intent.',
+        '{batsman} has been rotating strike well in recent outings.',
+        'Historically, {batsman} performs well against this type of bowling.',
+        // New 10 lines
+        '{batsman} has been in great form lately.',
+        '{bowler} bowled well in the last match.',
+        '{batsman} loves scoring at this venue.',
+        '{bowler} has a good record against this team.',
+        '{batsman} is looking to improve on his last outing.',
+        '{bowler} is the leading wicket taker.',
+        '{batsman} is a dangerous player in these overs.',
+        '{bowler} usually strikes early.',
+        '{batsman} averages over 40 this season.',
+        '{bowler} is known for his yorkers.'
+      ]
+    };
+
+    function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    function fill(template, vars){ return template.replace(/{(\w+)}/g, (_,k)=> vars[k] || ''); }
+
+    // NEW: Helper to convert numbers to words for exact milestone narration (Request 4)
+    function numberToWord(n) {
+      if (n === 50) return "fifty";
+      if (n === 100) return "hundred";
+      if (n === 150) return "one hundred and fifty";
+      if (n === 200) return "two hundred";
+      if (n === 250) return "two hundred and fifty";
+      if (n === 300) return "three hundred";
+      return n.toString(); // Fallback for other numbers
+    }
+
+    // NEW: Helper to convert small numbers to ordinal words for over narration (Request 3)
+    function getOrdinalWord(n) {
+        const words = ['zero', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth'];
+        if (n <= 20) return words[n];
+        return n.toString(); // Fallback for larger numbers
+    }
+
+    // NEW: Delivery Types
+    const FAST_TYPES = ['inswinging yorker', 'outswinging delivery', 'well-directed bouncer', 'slower ball', 'quicker ball', 'seaming delivery', 'off-cutter', 'leg-cutter', 'full toss', 'pinpoint yorker', 'short of a length ball'];
+    const SPIN_TYPES = ['off break', 'leg break', 'doosra', 'googly', 'flipper', 'top spinner', 'arm ball', 'sliding delivery', 'tossed up floater'];
+
+    // NEW: Helper to randomly determine the type of delivery (Approx 80% fast, 20% spin)
+    function getBallType() {
+      if (Math.random() < 0.8) {
+        return choice(FAST_TYPES);
+      } else {
+        return choice(SPIN_TYPES);
+      }
+    }
+
+    // NEW: Template pack for milestone celebration to include exact score (Request 4)
+    const MILESTONE_LINES = [
+      'An outstanding {milestone} for {batsman}! A composed, confident knock.',
+      'A superb landmark — {batsman} completes a brilliant {milestone}!',
+      'What a landmark for {batsman} — a magnificent {milestone}.',
+      'That’s a classy {milestone} by {batsman}; timing and placement superb.',
+      '{milestone} runs for {batsman}! He has anchored the innings superbly.',
+      'A landmark reached — {batsman} celebrates his {milestone} in style.',
+      'Fantastic knock — {batsman} brings up a fine {milestone}.',
+      'A well-earned {milestone} for {batsman}, full credit to his temperament.',
+      'Magnificent {milestone} for {batsman}! The innings needed that.',
+      'Splendid play — {batsman} reaches his {milestone} with authority.',
     ];
-
-    const defaultSubsections = {
-      'Channels': ['Email','SMS','WhatsApp','Push','In-app','Web'],
-      'Purpose': ['Event','Educational','Offer','Transactional','Retention','Other'],
-      'Journey Type': ['All','Special Events','Welcome','Abandonment','Re-engagement','Lifecycle'],
-      'References': ['Research Academies','ChatGPT','YouTube','Customer Care'],
-
-      'Designs': ['Channels & Types','Purpose','Journey Types','Overview','References'],
-      'Copies': ['Channels & Types','Purpose','Journey Types','Variants','Overview'],
-      'Templates': ['Email','SMS/WhatsApp','Push','In-app','Overview'],
-      'Getting Approval from Client': ['Copy','Design','Strategy','Approvals Log','Comments'],
-      'Client Segments': ['RFM Segments','Cohort Segments','Funnel Segments','Test Segments','Notes'],
-      'Campaign/Journeys Analysis': ['Benchmarks','Historical Data','Metrics','Insights','Recommendations'],
-      'Campaign Execution': ['Pre-checklist','Execution Checklist','Post-checklist','Issues','Notes'],
-      'RFM': ['Summary','Segments','Actions','Notes','Results'],
-      'Cohort': ['Weekly','Monthly','Retention Notes','Actions','Results'],
-      'Funnel': ['Top','Middle','Bottom','Drop-offs','Fixes'],
-      'Metrics': ['Conversions','Engagement','Revenue','Custom Metrics','Notes'],
-      'A/B Testing': ['Hypotheses','Variants','Results','Learnings','Notes'],
-      'Flow Analysis': ['Flow Map','Drop-offs','Optimizations','Notes','Results'],
-      'NPS': ['Responses','Promoters','Detractors','Actions','Trends'],
-      'Technical Issues': ['Open','In Progress','Resolved','Logs','Notes'],
-      'Technical Advantages': ['Ideas','Integrations','Automations','Notes','Results'],
-
-      'Note Taking': ['Notes'],
-      'Planning': ['Notes']
-    };
-
-    // DOM refs
-    const menuList = document.getElementById('menuList');
-    const submenuList = document.getElementById('submenuList');
-    const pageTitle = document.getElementById('pageTitle');
-    const noteArea = document.getElementById('noteArea');
-    const saveBtn = document.getElementById('saveBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const searchInput = document.getElementById('searchInput');
-    const addSub = document.getElementById('addSub');
-    const removeSub = document.getElementById('removeSub');
-    const exportAllBtn = document.getElementById('exportAll');
-    const importBtn = document.getElementById('importBtn');
-    const lastSync = document.getElementById('lastSync');
-
-    let state = {
-      selectedCategory: categories[0],
-      selectedSub: (defaultSubsections[categories[0]] && defaultSubsections[categories[0]][0]) || 'Notes',
-      data: {} // {category:{sub:{text:''}}}
-    };
-
-    // -------------------------
-    // LocalStorage helpers
-    // -------------------------
-    function loadFromStorage(){
-      try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) state.data = JSON.parse(raw); }catch(e){console.error(e)}
+    
+    // NEW: Template pack for ball type narration
+    const DELIVERY_TYPE_LINES = [
+      '{bowler} sends down a cracking {ballType} to {batsman}.',
+      'It’s a sharp {ballType} from {bowler}; {batsman} defends carefully.',
+      'That was a beautifully bowled {ballType} by {bowler}.',
+      '{batsman} faces a tricky {ballType} this time.',
+      'A variation! {bowler} bowls the {ballType}.',
+      'The {ballType} from {bowler} is played with soft hands.',
+      'Good challenge from {bowler} with that {ballType}.',
+      '{bowler} surprises {batsman} with a {ballType}.',
+      'Excellent execution of the {ballType} by {bowler}.',
+      'A change of pace, the {ballType} to {batsman}.',
+      '{bowler} bowls a classic {ballType}, hitting the right spot.',
+      'Watch out for the {ballType} as {bowler} comes in.',
+      'A perfectly flighted {ballType} toward {batsman}.',
+      '{batsman} had to adjust quickly for that {ballType}.',
+      'Another solid {ballType} from {bowler} keeping the pressure on.',
+      '{bowler} unleashes the {ballType}, a real weapon in the arsenal.',
+      'The loop and drift on that {ballType} was exquisite.',
+      '{batsman} tries to smash the {ballType} but misses.',
+      'A testing {ballType} that turns sharply away.',
+      '{bowler} fires in a fast, flat {ballType}.',
+    ];
+    
+    // --- Helpers ---
+    function context(){
+      const batting = state.userBattingFirst ? state.players : state.opponentPlayers;
+      const fielding = state.userBattingFirst ? state.opponentPlayers : state.players;
+      const striker = (batting[state.strikerIndex]||{name:'Batsman'});
+      const bowler = (fielding[state.currentBowlerIndex%fielding.length]||{name:'Bowler'});
+      const battingTeam = state.userBattingFirst ? state.team : state.opponent;
+      const venue = state.venue || '';
+      return { batsman:striker.name, bowler:bowler.name, battingTeam, venue };
     }
-    function saveToStorage(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data)); }catch(e){console.error(e)} }
 
-    // -------------------------
-    // Google Sheets helpers
-    // -------------------------
-    async function saveToSheet(category, sub, text){
-      try {
-        const payload = { secret: SHEETS_SECRET, category: category, sub: sub, text: text };
-        const resp = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await resp.json();
-        if(data && data.success){
-          lastSync.textContent = 'Last sync: ' + new Date().toLocaleString();
+    // --- Core Logic ---
+    async function playTurn(userNum, bowlerNum) {
+      if (isGameBusy) return; // Prevent double clicks
+      isGameBusy = true;
+      updateUIControls(); // Disable buttons
+
+      // 1. Calculate Result Logic
+      const res = calculateResult(userNum, bowlerNum);
+      const ctx = context();
+      
+      // 2. Prepare Commentary Strings (Don't speak yet)
+      const comms = prepareCommentary(res, ctx);
+
+      // 3. Execute Broadcast Sequence (Async)
+      const commentBox = document.getElementById('commentaryBox');
+      if(commentBox) commentBox.classList.add('speaking');
+
+      // A. Pre-Ball
+      if(comms.pre) {
+        if(commentBox) commentBox.textContent = comms.pre;
+        await speakAsync(comms.pre);
+        await delay(300); // Tiny gap
+      }
+
+      // B. The Delivery
+      if(commentBox) commentBox.textContent = comms.during;
+      await speakAsync(comms.during);
+      
+      // C. Action Pause (The ball traveling)
+      await delay(600); 
+
+      // D. Result Announcement
+      if(commentBox) commentBox.textContent = comms.resultText;
+      await speakAsync(comms.resultText); // "Four runs!"
+      await delay(200);
+
+      // E. Post-Ball / Analysis
+      if(comms.post) {
+        if(commentBox) commentBox.textContent = comms.post;
+        await speakAsync(comms.post);
+      }
+
+      // 4. Update Game State visuals & Logs
+      if(commentBox) commentBox.classList.remove('speaking');
+      updateGameState(res);
+      renderGameScreen(); // Re-render numbers etc.
+
+      // 5. Check Game Over
+      if (checkGameOver()) {
+        isGameBusy = false;
+        return;
+      }
+
+      // 6. Handle AutoPlay
+      isGameBusy = false;
+      updateUIControls(); // Enable buttons
+      
+      if (state.autoPlay) {
+        // Wait a breather before next ball
+        setTimeout(() => {
+          if (state.autoPlay && !isGameBusy) {
+            const nextUser = Math.floor(Math.random()*10)+1; // Random for user in autoplay
+            const nextBowl = Math.floor(Math.random()*10)+1;
+            // Update selected number visually
+            state.selectedNumber = nextUser;
+            renderGameScreen(); // Show selection
+            playTurn(nextUser, nextBowl);
+          }
+        }, 1500); // 1.5s gap between completion and next ball
+      }
+    }
+
+    function calculateResult(userNum, bowlerNum) {
+      const battingTeam = getBattingTeam(); const fieldingTeam = getFieldingTeam();
+      const diff = Math.abs(userNum - bowlerNum); 
+      let runs = 0, isWicket = false;
+
+      if(diff === 0){ runs = 4; }
+      else if(diff <= 2){ runs = 3; }
+      else if(diff <= 4){ runs = 1; }
+      else { runs = 0; }
+
+      if(diff >= 9){ isWicket = true; }
+      if(!isWicket && state.inningsWicketTarget !== null){
+        const wicketsRemaining = Math.max(0, state.inningsWicketTarget - state.wickets);
+        const ballsRemaining = Math.max(1, state.maxBalls - state.inningsBalls);
+        if(Math.random() < (wicketsRemaining / ballsRemaining)){ isWicket = true; }
+      }
+      return { runs, isWicket, userNum, bowlerNum };
+    }
+
+    function prepareCommentary(res, ctx) {
+      let pre = null;
+      let resultText = res.isWicket ? "WICKET!" : (res.runs > 0 ? `${res.runs} runs` : "No run");
+      let post = null;
+
+      // --- START Request: Ball Type Commentary ---
+      let during = fill(choice(EXT.bowlerToBatsman), ctx); // Default
+      
+      // Use ball type commentary for a high percentage of balls (80% chance for 4-5 balls per over)
+      if (Math.random() < 0.8) { 
+          const ballType = getBallType();
+          during = fill(choice(DELIVERY_TYPE_LINES), { ...ctx, ballType: ballType });
+      } else {
+           // Fallback to old generic lines 
+           during = fill(choice(EXT.bowlerToBatsman), ctx);
+      }
+      // --- END Request: Ball Type Commentary ---
+
+
+      // Logic for Pre-ball
+      const roll = Math.random();
+      const overStart = state.inningsBalls % 6 === 0;
+      
+      if(overStart) {
+        const overNum = (state.inningsBalls / 6) + 1;
+        
+        // --- START Request 3: Mention over number every 5th over from 5th onward ---
+if (overNum >= 5 && overNum % 5 === 0) {
+    const spokenOver = getOrdinalWord(overNum);
+    pre = fill(
+      '{bowler} comes in to begin the {spokenOver} over — an important phase of the innings.',
+      { ...ctx, spokenOver: spokenOver }
+    );
+} else {
+    // Normal new-bowler line for all other overs
+    pre = fill(choice(EXT.newBowler), ctx);
+}
+
+        // --- END Request 3 ---
+      } else if (roll < 0.2) {
+        pre = fill(choice(EXT.weatherLines), ctx);
+      } else if (roll < 0.35) {
+        pre = fill(choice(EXT.pitchLines), {});
+      } else if (roll < 0.5) {
+        pre = fill(choice(EXT.pastPerf), ctx);
+      } else {
+        pre = fill(choice(EXT.strikerOnStrike), ctx);
+      }
+
+      // Logic for Post-ball
+      const s = state.strikerIndex;
+      const batter = getBattingTeam()[s];
+      const currentRuns = batter ? batter.runs : 0;
+      const totalRuns = currentRuns + res.runs;
+
+      if (res.isWicket) {
+        post = fill(choice(EXT.wicketFall), { ...ctx, runs: totalRuns });
+      } else {
+        // --- START Request 4: Check for exact milestones (50, 100, 150, 200, etc.) ---
+        let milestoneReached = null;
+        const milestones = [50, 100, 150, 200, 250, 300];
+        
+        for (const m of milestones) {
+          if (currentRuns < m && totalRuns >= m) {
+            milestoneReached = m;
+            break;
+          }
+        }
+
+        if (milestoneReached !== null) {
+          const milestoneWord = numberToWord(milestoneReached);
+          post = fill(choice(MILESTONE_LINES), { ...ctx, milestone: milestoneWord });
+        } 
+        // --- END Request 4 ---
+        
+        else if (totalRuns > 40 && totalRuns < 50 && Math.random() < 0.3) {
+          post = fill(choice(EXT.milestoneMention), { ...ctx, score: totalRuns });
         } else {
-          console.warn('saveToSheet response', data);
+          // --- START Request 2: Restrict score/projection mention to once every 5 overs ---
+          const currentOver = Math.floor(state.inningsBalls / 6);
+          // Announce at the 5th ball of the 5th, 10th, 15th, etc. over
+          const isFifthOverEnd = (currentOver > 0 && currentOver % 5 === 0 && (state.inningsBalls % 6 === 5)); 
+          
+           if(isFifthOverEnd) {
+             // Announce projected score every 5th over
+             const proj = Math.max(80, Math.round((state.score / Math.max(1, state.inningsBalls)) * state.maxBalls));
+             post = fill(choice(EXT.projectedScore), { ...ctx, proj: proj, team: ctx.battingTeam });
+           } 
+                       // --- END Request 2 ---
         }
-        return data;
-      } catch (err) {
-        console.error('saveToSheet error', err);
-        return { success: false, error: String(err) };
       }
+
+      return { pre, during, resultText, post };
     }
 
-    async function loadFromSheet(category, sub){
-      try {
-        const url = `${WEB_APP_URL}?action=get&category=${encodeURIComponent(category)}&sub=${encodeURIComponent(sub)}`;
-        const resp = await fetch(url, { method: 'GET' });
-        const data = await resp.json();
-        return data;
-      } catch (err) {
-        console.error('loadFromSheet error', err);
-        return { success: false, error: String(err) };
+    function updateGameState(res) {
+      // Apply runs/wickets locally
+      if(res.isWicket) state.wickets++;
+      else state.score += res.runs;
+
+      const battingTeam = getBattingTeam();
+      const fieldingTeam = getFieldingTeam();
+      const s = state.strikerIndex;
+      const bowIdx = state.currentBowlerIndex % fieldingTeam.length;
+
+      // Update Player Stats
+      if(battingTeam[s]){
+        battingTeam[s].runs += res.runs;
+        battingTeam[s].balls++;
+        if(res.runs===4) battingTeam[s].fours++;
+        if(res.runs===6) battingTeam[s].sixes++;
       }
-    }
+      if(fieldingTeam[bowIdx]){
+        fieldingTeam[bowIdx].ballsBowled++;
+        fieldingTeam[bowIdx].conceded += res.runs;
+        if(res.isWicket) fieldingTeam[bowIdx].wickets++;
+      }
 
-    // -------------------------
-    // UI rendering
-    // -------------------------
-    function renderMenu(filter=''){
-      menuList.innerHTML='';
-      categories.filter(c=>c.toLowerCase().includes(filter.toLowerCase())).forEach(cat=>{
-        const btn = document.createElement('button'); btn.textContent=cat; btn.className = cat===state.selectedCategory? 'active':'';
-        btn.onclick = ()=>{ selectCategory(cat); };
-        menuList.appendChild(btn);
-      });
-    }
-
-    function renderSubmenu(){
-      submenuList.innerHTML='';
-      const subs = defaultSubsections[state.selectedCategory] || ['Notes'];
-      subs.forEach(s=>{
-        const div = document.createElement('div'); div.className='subitem'; div.textContent=s;
-        if(s===state.selectedSub) div.classList.add('active');
-        div.onclick = ()=>{ selectSub(s); };
-        submenuList.appendChild(div);
-      });
-    }
-
-    function selectCategory(cat){
-      state.selectedCategory = cat;
-      const subs = defaultSubsections[cat] || ['Notes'];
-      state.selectedSub = subs[0];
-      pageTitle.textContent = cat + ' — ' + state.selectedSub;
-      renderMenu(searchInput.value);
-      renderSubmenu();
-      loadNote();
-    }
-
-    function selectSub(sub){ state.selectedSub = sub; pageTitle.textContent = state.selectedCategory + ' — ' + state.selectedSub; renderSubmenu(); loadNote(); }
-
-    function getCurrentObj(){
-      if(!state.data[state.selectedCategory]) state.data[state.selectedCategory] = {};
-      if(!state.data[state.selectedCategory][state.selectedSub]) state.data[state.selectedCategory][state.selectedSub] = {text:''};
-      return state.data[state.selectedCategory][state.selectedSub];
-    }
-
-    // -------------------------
-    // Save / Load logic
-    // -------------------------
-    async function saveCurrent(){
-      // local backup
-      const obj = getCurrentObj();
-      obj.text = noteArea.value;
-      saveToStorage();
-
-      // remote save (non-blocking)
-      saveToSheet(state.selectedCategory, state.selectedSub, noteArea.value)
-        .then(res => {
-          if(!res || !res.success) console.warn('Remote save failed', res);
-        }).catch(err => console.error('Remote save error', err));
-    }
-
-    async function loadNote(){
-      // try remote first
-      try {
-        const remote = await loadFromSheet(state.selectedCategory, state.selectedSub);
-        if(remote && remote.success && remote.record){
-          noteArea.value = remote.record.text || '';
-          // sync to local
-          if(!state.data[state.selectedCategory]) state.data[state.selectedCategory] = {};
-          state.data[state.selectedCategory][state.selectedSub] = { text: noteArea.value };
-          saveToStorage();
-          return;
+      // Partnership
+      state.currentPartnership.runs += res.runs;
+      if(res.isWicket){
+        if(state.currentPartnership.runs > 0) state.partnerships[state.inningsNumber].push({...state.currentPartnership});
+        if(state.nextBatsmanIndex < battingTeam.length){
+          state.strikerIndex = state.nextBatsmanIndex++;
+          state.currentPartnership = {runs:0, batsmen:[battingTeam[state.strikerIndex].name, battingTeam[state.nonStrikerIndex].name]};
         }
-      } catch (e) {
-        console.warn('Remote load failed, using local', e);
       }
-      // fallback local
-      const obj = getCurrentObj();
-      noteArea.value = obj.text || '';
+
+      state.inningsBalls++;
+
+      // Rotation
+      if(res.runs % 2 === 1){
+        const t = state.strikerIndex; state.strikerIndex=state.nonStrikerIndex; state.nonStrikerIndex=t;
+        if(!res.isWicket) state.currentPartnership.batsmen = [battingTeam[state.strikerIndex].name, battingTeam[state.nonStrikerIndex].name];
+      }
+      if(state.inningsBalls % 6 === 0){
+        state.currentBowlerIndex = (state.currentBowlerIndex+1) % fieldingTeam.length;
+        const t = state.strikerIndex; state.strikerIndex=state.nonStrikerIndex; state.nonStrikerIndex=t;
+         if(!res.isWicket) state.currentPartnership.batsmen = [battingTeam[state.strikerIndex].name, battingTeam[state.nonStrikerIndex].name];
+      }
+
+      // Log
+      const logText = `Ball ${state.inningsBalls}: ${res.isWicket ? 'WICKET' : res.runs + ' runs'}`;
+      state.logs.unshift(logText);
+      state.latestResult = logText;
     }
 
-    // -------------------------
-    // Events & actions
-    // -------------------------
-    noteArea.addEventListener('input', debounce(saveCurrent,700));
-    saveBtn.onclick = saveCurrent;
+    function checkGameOver() {
+      // Innings End Logic
+       if(state.wickets >= 10 || state.inningsBalls >= state.maxBalls){
+        if(state.currentPartnership.runs > 0) state.partnerships[state.inningsNumber].push({...state.currentPartnership});
+        
+        // --- START Request 1: New spoken line for score (e.g., "22 runs for 1 wicket") ---
+        const scoreSpoken = `${state.score} runs for ${state.wickets} wicket${state.wickets === 1 ? '' : 's'}`;
+        // --- END Request 1 ---
+        
+        if(state.inningsNumber === 1){
+           state.firstInningsScore = state.score;
+           state.inningsNumber = 2;
+           state.target = state.firstInningsScore + 1;
+           state.userBattingFirst = !state.userBattingFirst;
+           state.inningsBalls = 0; state.wickets = 0; state.score = 0;
+           state.strikerIndex = 0; state.nonStrikerIndex = 1; state.nextBatsmanIndex = 2; state.currentBowlerIndex = 0;
+           state.currentPartnership = { runs: 0, batsmen: [ getBattingTeam()[0].name, getBattingTeam()[1].name ] };
+           initInningsWicketTarget();
+           
+           // Spoken announcement for Innings Break
+           const inningsEndMsg = `${getBattingTeamName()} finish their innings. They have scored ${scoreSpoken}. The target for ${getFieldingTeamName()} is ${state.target}.`;
+           speakAsync(inningsEndMsg);
+           
+           alert(`Innings Break! Target: ${state.target}`);
+           renderPage();
+           return true;
+        } else {
+           let msg = state.score >= state.target ? `${getBattingTeamName()} Won!` : `${getFieldingTeamName()} Won!`;
+           
+           // Spoken announcement for Match Over
+           const matchOverMsg = state.score >= state.target 
+             ? `${getBattingTeamName()} Won by ${10 - state.wickets} wickets! They scored ${scoreSpoken} to win.`
+             : `${getFieldingTeamName()} Won by ${state.target - state.score - 1} runs. ${getBattingTeamName()} finished on ${scoreSpoken}.`;
+           
+           speakAsync(`Match Over! ${matchOverMsg}`);
+           
+           alert(`Match Over! ${msg}`);
+           state.autoPlay = false;
+           renderPage();
+           return true;
+        }
+      }
+      if(state.inningsNumber === 2 && state.score >= state.target){
+         speakAsync(`${getBattingTeamName()} Won the match by ${10 - state.wickets} wickets!`);
+         alert(`${getBattingTeamName()} Won!`);
+         state.autoPlay = false;
+         renderPage();
+         return true;
+      }
+      return false;
+    }
 
-    clearBtn.onclick = ()=>{ if(confirm('Clear notes for "'+state.selectedCategory+' / '+state.selectedSub+'"?')){ if(state.data[state.selectedCategory]) delete state.data[state.selectedCategory][state.selectedSub]; noteArea.value=''; saveToStorage(); saveToSheet(state.selectedCategory, state.selectedSub, ''); } }
+    function updateUIControls(){
+      const btn = document.getElementById('playBall');
+      const autoBtn = document.getElementById('autoPlayBtn');
+      if(btn) btn.disabled = isGameBusy;
+      if(autoBtn) autoBtn.textContent = state.autoPlay ? 'Stop Auto' : 'Auto Play';
+    }
 
-    addSub.onclick = ()=>{ const name = prompt('New sub-item name'); if(!name) return; const arr = defaultSubsections[state.selectedCategory] || []; arr.push(name); defaultSubsections[state.selectedCategory]=arr; renderSubmenu(); selectSub(name); }
-    removeSub.onclick = ()=>{ if(!confirm('Remove sub-item "'+state.selectedSub+'" from '+state.selectedCategory+'?')) return; const arr = defaultSubsections[state.selectedCategory] || []; defaultSubsections[state.selectedCategory] = arr.filter(x=>x!==state.selectedSub); if(state.data[state.selectedCategory]) delete state.data[state.selectedCategory][state.selectedSub]; const newSub = (defaultSubsections[state.selectedCategory] && defaultSubsections[state.selectedCategory][0]) || 'Notes'; selectSub(newSub); saveToStorage(); }
+    // --- Standard UI Functions (unchanged mostly) ---
+    const stepsEl = document.getElementById('steps'); const pageEl = document.getElementById('page'); const restartBtn = document.getElementById('restart'); const scoreBtn = document.getElementById('scoreBtn'); const scoreModal = document.getElementById('scoreModal'); const scoreContent = document.getElementById('scoreContent'); const closeScore = document.getElementById('closeScore');
+    restartBtn.onclick = ()=> location.reload(); scoreBtn.onclick = ()=> openScoreboard(); closeScore.onclick = ()=> closeScoreboard(); scoreModal.onclick = (e)=> { if(e.target===scoreModal) closeScoreboard(); };
+    function openScoreboard(){ renderScoreboard(); scoreModal.style.display='flex'; }
+    function closeScoreboard(){ scoreModal.style.display='none'; }
+    function renderSteps(){ stepsEl.innerHTML=''; state.pages.forEach((p,i)=>{ const d=document.createElement('div'); d.className='step '+(i===state.pageIndex? 'active':''); d.textContent=p; d.onclick=()=>{ if(i<=state.pageIndex && !isGameBusy){ state.pageIndex=i; renderPage(); } }; stepsEl.appendChild(d); }); }
+    function next(){ state.pageIndex++; renderSteps(); renderPage(); }
+    function renderPage(){ renderSteps(); pageEl.innerHTML=''; const idx = state.pageIndex; if(idx===0) renderPlayScreen(); else if(idx===1) renderSelectTeam(); else if(idx===2) renderSelectOvers(); else if(idx===3) renderSelectVenue(); else if(idx===4) renderToss(); else if(idx===5) renderChoiceAfterToss(); else if(idx===6) renderLineup(); else if(idx===7) renderGameScreen(); }
+    function renderPlayScreen(){ const el=document.createElement('div'); el.innerHTML = `<div class="field"><button id="playBtn" class="btn">Play</button></div>`; pageEl.appendChild(el); document.getElementById('playBtn').onclick = ()=> next(); }
+    function renderSelectTeam(){ const el=document.createElement('div'); el.innerHTML = `<div class="section"><div class="small">Select your team (8 teams)</div></div>`; const list=document.createElement('div'); list.className='option-list'; TEAMS.forEach(t=>{ const o=document.createElement('div'); o.className='option'; o.textContent=t; o.onclick=()=>{ document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected')); o.classList.add('selected'); state.team=t; const others=TEAMS.filter(x=>x!==t); state.opponent = others[Math.floor(Math.random()*others.length)]; }; list.appendChild(o); }); pageEl.appendChild(el); pageEl.appendChild(list); const nextBtn=document.createElement('button'); nextBtn.className='btn'; nextBtn.textContent='Next'; nextBtn.onclick=()=>{ if(!state.team) return alert('Choose a team'); next(); }; pageEl.appendChild(nextBtn); }
+    function renderSelectOvers(){ const el=document.createElement('div'); el.innerHTML=`<div class='small'>Select overs</div>`; const list=document.createElement('div'); list.className='option-list'; OVER_OPTIONS.forEach(o=>{ const item=document.createElement('div'); item.className='option'; item.textContent=o; item.onclick=()=>{ document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected')); item.classList.add('selected'); state.overs=o; }; list.appendChild(item); }); pageEl.appendChild(el); pageEl.appendChild(list); const nextBtn=document.createElement('button'); nextBtn.className='btn'; nextBtn.textContent='Next'; nextBtn.onclick=()=>{ if(!state.overs) return alert('Select overs'); next(); }; pageEl.appendChild(nextBtn); }
+    function renderSelectVenue(){ const el=document.createElement('div'); el.innerHTML=`<div class='small'>Select venue</div>`; const list=document.createElement('div'); list.className='option-list'; VENUES.forEach(v=>{ const item=document.createElement('div'); item.className='option'; item.textContent=v; item.onclick=()=>{ document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected')); item.classList.add('selected'); state.venue=v; }; list.appendChild(item); }); pageEl.appendChild(el); pageEl.appendChild(list); const nextBtn=document.createElement('button'); nextBtn.className='btn'; nextBtn.textContent='Next'; nextBtn.onclick=()=>{ if(!state.venue) return alert('Select venue'); next(); }; pageEl.appendChild(nextBtn); }
+    function renderToss(){ const el=document.createElement('div'); el.innerHTML=`<div class='small'>Toss time — click to toss</div>`; const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Flip Coin'; btn.onclick=()=>{ const toss = Math.random()<0.5 ? state.team : state.opponent; state.tossWinner = toss; alert('Toss won by: '+toss); next(); }; pageEl.appendChild(el); pageEl.appendChild(btn); }
+    function renderChoiceAfterToss(){ const el=document.createElement('div'); el.innerHTML=`<div class='small'>If you win toss choose Bat/Bowl. Otherwise system chooses for you.</div>`; const info=document.createElement('div'); info.className='small'; info.style.margin='8px 0'; info.textContent = 'Toss winner: ' + state.tossWinner; pageEl.appendChild(el); pageEl.appendChild(info); if(state.tossWinner===state.team){ const list=document.createElement('div'); list.className='option-list'; ['Bat','Bowl'].forEach(opt=>{ const o=document.createElement('div'); o.className='option'; o.textContent=opt; o.onclick=()=>{ document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected')); o.classList.add('selected'); state.userChoiceAfterToss = opt; }; list.appendChild(o); }); pageEl.appendChild(list); const nextBtn=document.createElement('button'); nextBtn.className='btn'; nextBtn.textContent='Confirm'; nextBtn.onclick=()=>{ if(!state.userChoiceAfterToss) return alert('Choose Bat or Bowl'); state.userBattingFirst = (state.userChoiceAfterToss==='Bat'); next(); }; pageEl.appendChild(nextBtn); } else { const sys = Math.random()<0.5 ? 'Bat' : 'Bowl'; state.userChoiceAfterToss = sys; state.userBattingFirst = (sys==='Bat'); const msg=document.createElement('div'); msg.className='small'; msg.style.marginTop='8px'; msg.textContent = 'You lost toss. System chose: '+sys+'. You will '+(state.userBattingFirst? 'bat first':'bowl first'); pageEl.appendChild(msg); const continueBtn=document.createElement('button'); continueBtn.className='btn'; continueBtn.textContent='Continue'; continueBtn.onclick=()=> next(); pageEl.appendChild(continueBtn); } }
+    function buildPlayers(teamName){ const rosters = { 'Mumbai': ['Rohit Sharma','Ishan Kishan','Suryakumar Yadav','Tilak Varma','Tim David','Hardik Pandya','Jasprit Bumrah','Nehal Wadhera','Dhawal Kulkarni','Jason Behrendorff','Kieron Pollard'], 'Chennai': ['Ruturaj Gaikwad','Devon Conway','Ravindra Jadeja','MS Dhoni','Daryl Mitchell','Deepak Chahar','Moeen Ali','Shivam Dube','Tushar Deshpande','R Sai Kishore','Subhranshu Senapati'], 'Kolkata': ['Shubman Gill','Venkatesh Iyer','Nitish Rana','Rahul Tripathi','Rinku Singh','Andre Russell','Varun Chakravarthy','Lockie Ferguson','Sunil Narine','Anukul Roy','Harbhajan Singh'], 'Delhi': ['Rishabh Pant','Prithvi Shaw','David Warner','Sarfaraz Khan','Marcus Stoinis','Kuldeep Yadav','Axar Patel','Anrich Nortje','Kagiso Rabada','Ishant Sharma','Ravichandran Ashwin'], 'Bengaluru': ['Faf du Plessis','Virat Kohli','Glenn Maxwell','Dinesh Karthik','Shreyas Iyer','Wanindu Hasaranga','Yuzvendra Chahal','Harshal Patel','KS Bharat','Mohammed Siraj','Kyle Jamieson'], 'Hyderabad': ['Kane Williamson','Nicholas Pooran','Travis Head','Harry Brook','Abhishek Sharma','Bhuvneshwar Kumar','Rashid Khan','Mayank Agarwal','Marco Jansen','Aiden Markram','Shahbaz Ahmed'], 'Punjab': ['KL Rahul','Jonny Bairstow','Shikhar Dhawan','Liam Livingstone','Sam Curran','Arshdeep Singh','Shivam Mavi','Jitesh Sharma','Rilee Rossouw','Prabhsimran Singh','Harpreet Brar'], 'Rajasthan': ['Sanju Samson','Jos Buttler','Yashasvi Jaiswal','Riyan Parag','Shimron Hetmyer','Ravichandran Ashwin','Trent Boult','Rahul Tewatia','Kuldip Yadav','Anuj Rawat','Chris Morris'] }; const list = rosters[teamName] || []; return list.slice(0,11).map(n=>({ name:n, runs:0, balls:0, fours:0, sixes:0, wickets:0, ballsBowled:0, conceded:0 })); }
+    function initInningsWicketTarget(){ if(Math.random() < 0.7){ state.inningsWicketTarget = (Math.random() < 0.5) ? 5 : 6; } else { state.inningsWicketTarget = Math.floor(Math.random()*11); } }
+    function renderLineup(){ state.players = buildPlayers(state.team); state.opponentPlayers = buildPlayers(state.opponent); const el=document.createElement('div'); el.innerHTML = `<div class='small'>Select a player to ${state.userBattingFirst? 'bat first' : 'bowl first'}</div>`; pageEl.appendChild(el);
+      if(state.userBattingFirst){ const list=document.createElement('div'); list.className='players'; state.players.forEach((p, idx)=>{ const d=document.createElement('div'); d.className='option'; d.textContent = p.name; d.onclick=()=>{ document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected')); d.classList.add('selected'); state.selectedBatter = idx; }; list.appendChild(d); }); pageEl.appendChild(list); const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Start Game'; btn.onclick=()=>{ if(state.selectedBatter===null||state.selectedBatter===undefined) return alert('Choose a batter'); prepareGame(); next(); }; pageEl.appendChild(btn); } else { const list=document.createElement('div'); list.className='players'; state.opponentPlayers.forEach((p, idx)=>{ const d=document.createElement('div'); d.className='option'; d.textContent = p.name; d.onclick=()=>{ document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected')); d.classList.add('selected'); state.selectedBowler = idx; }; list.appendChild(d); }); pageEl.appendChild(list); const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Start Game'; btn.onclick=()=>{ if(state.selectedBowler===null||state.selectedBowler===undefined) return alert('Choose a bowler'); prepareGame(); next(); }; pageEl.appendChild(btn); }
+    }
+    function prepareGame(){ if(state.overs === 'Test') state.maxBalls = 600; else state.maxBalls = parseInt(state.overs) * 6; state.inningsBalls = 0; state.wickets = 0; state.score = 0; state.logs = []; state.latestResult = ''; state.players.forEach(p=>{ p.runs=0; p.balls=0; p.fours=0; p.sixes=0; p.wickets=0; p.ballsBowled=0; p.conceded=0; }); state.opponentPlayers.forEach(p=>{ p.runs=0; p.balls=0; p.fours=0; p.sixes=0; p.wickets=0; p.ballsBowled=0; p.conceded=0; }); state.selectedNumber = null; state.strikerIndex = (state.selectedBatter !== null && state.selectedBatter !== undefined) ? state.selectedBatter : 0; state.nonStrikerIndex = (state.strikerIndex === 0) ? 1 : 0; state.nextBatsmanIndex = Math.max(0, state.nonStrikerIndex + 1); state.currentBowlerIndex = 0; if(state.selectedBowler===null||state.selectedBowler===undefined) state.selectedBowler = 0; state.currentPartnership = { runs: 0, batsmen: [ (state.userBattingFirst ? state.players[state.strikerIndex].name : state.opponentPlayers[state.strikerIndex].name), (state.userBattingFirst ? state.players[state.nonStrikerIndex].name : state.opponentPlayers[state.nonStrikerIndex].name) ] }; initInningsWicketTarget(); }
+    function getBattingTeam(){ return state.userBattingFirst ? state.players : state.opponentPlayers; }
+    function getFieldingTeam(){ return state.userBattingFirst ? state.opponentPlayers : state.players; }
+    function getBattingTeamName(){ return state.userBattingFirst ? state.team : state.opponent; }
+    function getFieldingTeamName(){ return state.userBattingFirst ? state.opponent : state.team; }
 
-    exportAllBtn.onclick = ()=>{ const dataStr = JSON.stringify(state.data,null,2); const blob = new Blob([dataStr],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='crm_tracker_notes.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-    importBtn.onclick = ()=>{ const input = document.createElement('input'); input.type='file'; input.accept='application/json'; input.onchange = e=>{ const file = e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=ev=>{ try{ const imported = JSON.parse(ev.target.result); state.data = Object.assign({}, state.data, imported); saveToStorage(); alert('Import successful'); }catch(err){ alert('Invalid JSON'); } }; reader.readAsText(file); }; input.click(); }
+    function renderGameScreen(){ 
+      const el = document.createElement('div'); const sb = document.createElement('div'); sb.className='scoreboard'; 
+      const battingTeam = getBattingTeam(); const striker = battingTeam[state.strikerIndex] || {name:'—', runs:0, balls:0}; const nonStriker = battingTeam[state.nonStrikerIndex] || {name:'—', runs:0, balls:0}; const fieldingTeam = getFieldingTeam(); const bowIdx = state.currentBowlerIndex % fieldingTeam.length; const bowlerObj = fieldingTeam[bowIdx] || {name:'—', wickets:0, ballsBowled:0, conceded:0}; const bowlerOvers = Math.floor((bowlerObj.ballsBowled || 0)/6); const bowlerBalls = (bowlerObj.ballsBowled || 0) % 6;
+      sb.innerHTML = `<div><strong>${ state.userBattingFirst ? state.team + ' batting' : state.opponent + ' batting' }</strong></div>
+        <div class='small'>Venue: ${state.venue} | Overs: ${state.overs} | Innings: ${state.inningsNumber}</div>
+        <div style='margin-top:8px'><strong>Score: ${state.score}/${state.wickets}</strong> &nbsp; Balls: ${state.inningsBalls}/${state.maxBalls}</div>
+        <div style='margin-top:6px' class='small'>Batsmen: ${striker.name} — ${striker.runs}(${striker.balls})  |  ${nonStriker.name} — ${nonStriker.runs}(${nonStriker.balls})</div>
+        <div style='margin-top:4px' class='small'>Bowler: ${bowlerObj.name} — W:${bowlerObj.wickets} O:${bowlerOvers}.${bowlerBalls}  |  Conceded: ${bowlerObj.conceded || 0}</div>`;
+      el.appendChild(sb);
 
-    function debounce(fn,ms){ let t; return function(){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,arguments),ms); }; }
+      const row=document.createElement('div'); row.style.display='flex'; row.style.gap='12px'; row.style.marginTop='12px'; const chooseBox=document.createElement('div'); chooseBox.style.flex='1'; chooseBox.innerHTML = '<div class="small">Choose your number (1-10)</div>'; 
+      const numGrid = document.createElement('div'); numGrid.className='number-grid'; 
+      for(let i=1;i<=10;i++){ const n=document.createElement('div'); n.className='num ' + (state.selectedNumber === i ? 'sel' : ''); n.textContent=i; n.onclick=()=>{ if(isGameBusy) return; document.querySelectorAll('.num').forEach(x=>x.classList.remove('sel')); n.classList.add('sel'); state.selectedNumber = i; }; numGrid.appendChild(n); } chooseBox.appendChild(numGrid);
 
-    searchInput.addEventListener('input', (e)=>{ renderMenu(e.target.value); });
-    document.addEventListener('keydown', (e)=>{ if((e.ctrlKey||e.metaKey) && e.key==='s'){ e.preventDefault(); saveCurrent(); } });
+      const actionBox=document.createElement('div'); actionBox.style.width='420px'; actionBox.innerHTML = `<div class='small'>System selection</div><div id='sysPick' style='margin:8px 0;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;'>—</div><div style='margin-top:8px' class='row'><button id='playBall' class='btn' ${isGameBusy?'disabled':''}>Next Ball</button> <button id='autoPlayBtn' class='btn' style='background:#9cf'>Auto Play</button></div>`; row.appendChild(chooseBox); row.appendChild(actionBox); el.appendChild(row);
 
-    // initial
-    loadFromStorage();
-    renderMenu();
-    renderSubmenu();
-    selectCategory(state.selectedCategory);
+      const latest = document.createElement('div'); latest.style.marginTop='12px'; latest.innerHTML = `<div class='small'>Latest result</div><div id='latestResult' style='margin-top:6px;padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;'>${state.latestResult || 'No ball yet'}</div><div id='commentaryBox' class='commentary'>${state.latestResult ? state.latestResult : ''}</div>`; el.appendChild(latest);
+      const logDiv = document.createElement('div'); logDiv.className='log'; logDiv.style.marginTop='12px'; logDiv.innerHTML = state.logs.join('<br>'); el.appendChild(logDiv);
+      pageEl.innerHTML=''; pageEl.appendChild(el);
 
+      document.getElementById('playBall').onclick = ()=>{ 
+        if(isGameBusy) return;
+        if(state.inningsBalls >= state.maxBalls) { alert('Innings over'); return; } 
+        if(!state.selectedNumber) return alert('Choose a number'); 
+        const bowlerNum = Math.floor(Math.random()*10)+1; 
+        const sysPickEl = document.getElementById('sysPick'); if(sysPickEl) sysPickEl.textContent = bowlerNum; 
+        
+        playTurn(state.selectedNumber, bowlerNum); // Trigger async turn
+      };
+
+      document.getElementById('autoPlayBtn').onclick = () => { 
+        state.autoPlay = !state.autoPlay; 
+        updateUIControls();
+        if(state.autoPlay && !isGameBusy) {
+          state.selectedNumber = Math.floor(Math.random()*10)+1; 
+          document.getElementById('playBall').click();
+        }
+      };
+    }
+
+    function renderScoreboard(){ const battingArray = getBattingTeam(); const fieldingArray = getFieldingTeam(); let html = `<div><strong>Batting — ${ getBattingTeamName() }</strong></div>`; html += `<table class="table"><thead><tr><th>Player</th><th>R</th><th>B</th><th>4s</th><th>6s</th></tr></thead><tbody>`; battingArray.forEach(p=>{ html += `<tr><td>${p.name}</td><td>${p.runs||0}</td><td>${p.balls||0}</td><td>${p.fours||0}</td><td>${p.sixes||0}</td></tr>`; }); html += `</tbody></table>`; html += `<div style="margin-top:12px"><strong>Partnerships — Innings ${state.inningsNumber}</strong></div>`; html += `<table class="table"><thead><tr><th>Pair</th><th>Runs</th></tr></thead><tbody>`; const parts = state.partnerships[state.inningsNumber] ? state.partnerships[state.inningsNumber].slice() : []; if(state.currentPartnership && state.currentPartnership.batsmen && state.currentPartnership.batsmen.length){ parts.unshift(state.currentPartnership); } parts.forEach(p=>{ html += `<tr><td>${p.batsmen[0]} &amp; ${p.batsmen[1]}</td><td>${p.runs}</td></tr>`; }); html += `</tbody></table>`; const bowlers = fieldingArray.slice().map(p=>({ name:p.name, wickets:p.wickets||0, balls:p.ballsBowled||0, conceded:p.conceded||0 })); bowlers.sort((a,b)=>{ if(b.wickets!==a.wickets) return b.wickets-a.wickets; return b.balls - a.balls; }); html += `<div style="margin-top:12px"><strong>Top ${Math.min(5,bowlers.length)} Bowlers — ${ getFieldingTeamName() }</strong></div>`; html += `<table class="table"><thead><tr><th>Bowler</th><th>O</th><th>W</th><th>Conceded</th></tr></thead><tbody>`; bowlers.slice(0,5).forEach(b=>{ const overs = Math.floor(b.balls/6); const balls = b.balls%6; html += `<tr><td>${b.name}</td><td>${overs}.${balls}</td><td>${b.wickets}</td><td>${b.conceded}</td></tr>`; }); html += `</tbody></table>`; if(state.inningsNumber === 2 && state.firstInningsScore){ html += `<div style="margin-top:12px" class="small">Target: ${state.target}</div>`; } scoreContent.innerHTML = html; }
+
+    // start
+    renderPage();
   </script>
 </body>
 </html>
