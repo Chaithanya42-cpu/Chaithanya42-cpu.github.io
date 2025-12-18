@@ -6,253 +6,133 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  body{
-    margin:0;
-    font-family:Inter, system-ui, Arial;
-    background:#0f172a;
-    color:#e5e7eb;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:20px;
-  }
+body{
+  margin:0;
+  font-family:Inter, system-ui, Arial;
+  background:#0f172a;
+  color:#e5e7eb;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:24px;
+}
+h1{ margin-bottom:14px; }
 
-  h1{
-    margin-bottom:8px;
-  }
+button{
+  background:#2563eb;
+  color:white;
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  cursor:pointer;
+}
 
-  .controls{
-    margin:12px 0;
-  }
+#heard{
+  margin-top:12px;
+  opacity:.75;
+  font-size:14px;
+}
 
-  button{
-    padding:10px 16px;
-    font-size:15px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    margin-right:8px;
-  }
+#visual{
+  width:100%;
+  max-width:900px;
+  margin:20px 0;
+  border-radius:16px;
+  display:none;
+}
 
-  #startBtn{ background:#22c55e; color:#022c22; }
-  #stopBtn{ background:#ef4444; color:white; }
-
-  #visualImage{
-    width:100%;
-    max-width:900px;
-    border-radius:12px;
-    margin:18px 0;
-    display:none;
-    opacity:0;
-    transition:opacity 0.4s ease;
-  }
-
-  #textBox{
-    max-width:900px;
-    background:#020617;
-    padding:16px 18px;
-    border-radius:10px;
-    font-size:18px;
-    line-height:1.6;
-    min-height:80px;
-  }
-
-  .speaking{
-    border-left:4px solid #38bdf8;
-    background:#020617;
-  }
+#box{
+  max-width:900px;
+  background:#020617;
+  padding:20px;
+  border-radius:14px;
+  font-size:18px;
+  line-height:1.6;
+  border-left:4px solid #38bdf8;
+}
 </style>
 </head>
 
 <body>
 
 <h1>Business Communication Trainer</h1>
-<div class="controls">
-  <button id="startBtn">Start Meeting</button>
-  <button id="stopBtn">Stop</button>
-</div>
 
-<img id="visualImage" src="" alt="Context visual">
+<button id="askBtn">🎤 Ask a Question</button>
+<p id="heard"></p>
 
-<div id="textBox">Click “Start Meeting” to begin.</div>
+<img id="visual" />
+<div id="box">Ask a question to begin.</div>
 
 <script>
-/* ===============================
-   YOUR 75 FINAL LINES (EXACT)
-================================ */
+/* ===== CRM LINES ===== */
 const LINES = [
   "Before we jump into solutions, I want to clearly understand the business context from your perspective.",
   "To make sure we are aligned, could you share what the primary goal is for this phase?",
   "From your point of view, what is the biggest challenge you are trying to solve right now?",
   "What would success look like for you at the end of the next 30 to 60 days?",
-  "Are there any constraints or limitations we should be aware of before planning execution?",
-  "What has worked well so far, and where do you feel things have not met expectations?",
-  "I want to understand the customer behavior better before suggesting any next steps.",
-
   "Let me quickly outline the agenda so we can use the time effectively.",
-  "The objective of today’s call is to align on priorities and next steps.",
-  "We will cover performance, upcoming plans, and approvals in that order.",
-  "I want to be mindful of time, so let’s focus on the key decisions needed today.",
-  "Does this agenda work for everyone before we proceed?",
-  "If anything feels out of scope, we can park it and revisit later.",
-
-  "Let me start with the outcome first, and then I’ll explain the drivers behind it.",
   "Overall, the campaign performed better than last month in terms of conversions.",
-  "Where we saw a dip was in open rates, mainly due to audience saturation.",
-  "What worked particularly well here was the targeting and timing.",
-  "Compared to the previous cycle, engagement has improved among repeat users.",
-  "The key learning from this campaign is something we can directly apply going forward.",
   "There are some gaps, and I want to call them out transparently.",
-
-  "Based on what we’re seeing in the data, there are two clear approaches we can take.",
-  "From a strategic standpoint, this aligns well with your long-term retention goals.",
-  "If the objective is revenue growth, then this is the lever we should prioritize.",
   "My recommendation would be to balance proven strategies with controlled testing.",
-  "This gives us an opportunity to improve performance without taking unnecessary risk.",
-  "We should think of this in phases rather than treating it as a one-time activity.",
-  "This approach allows us to scale what works while learning continuously.",
-
-  "To move forward, we need confirmation on the final creative and send time.",
   "What we are seeking approval for today is the campaign structure and audience.",
-  "Once this is approved, we can proceed without any further dependency.",
-  "Is there any concern or change you would like before we lock this?",
-  "Can we align on this today so we stay on track with the timeline?",
-  "If this works for you, we’ll proceed exactly as discussed.",
-
   "I want to acknowledge this upfront — this should not have happened.",
-  "You are right to call this out, and I take responsibility for it.",
-  "The root cause of this issue was a process gap on our side.",
-  "What’s important now is how we fix this and prevent it from recurring.",
-  "We’ve already taken corrective steps, and this will not repeat.",
-  "I’ll personally ensure this stays on track from here.",
-  "The revised timeline is clear, and we are aligned on next steps.",
-
-  "Just to align expectations clearly, this is how we propose handling execution.",
-  "Going forward, this will be the process we follow for all campaigns.",
-  "To avoid any confusion later, we’ll document and share all updates in writing.",
-  "Our role will be to strategize, execute, and report on performance.",
-  "This is what you can expect from us on a weekly basis.",
-  "Please let us know if this structure works for you.",
-
   "Rather than reviewing every metric, let’s focus on what actually matters.",
-  "The key insight here is how user intent changes across channels.",
-  "What this data tells us is that timing matters more than frequency.",
-  "This metric is important because it directly impacts revenue.",
-  "If we connect these data points, the pattern becomes very clear.",
-  "This insight helps us make a more informed decision moving forward.",
-
-  "I’d really appreciate your honest feedback on this approach.",
-  "Does this align with what you had in mind?",
   "That’s fair feedback, and I appreciate you sharing it openly.",
-  "We’ll take this input seriously and refine our approach.",
-  "Let’s treat this as an opportunity to improve, not a setback.",
-  "We’ll reflect this feedback in the next iteration.",
-
-  "Today’s top priority is completing the campaign assets on time.",
   "Let’s align on ownership so there’s no confusion later.",
-  "Design will deliver by 4 PM, and copy by 5 PM.",
-  "If anyone is blocked, please flag it immediately.",
-  "I’ll review everything and share feedback in one consolidated round.",
-  "Let’s stay focused so we don’t miss timelines.",
-
   "That’s an important point, but it’s slightly out of scope for today’s call.",
-  "To stay on track, let’s come back to the main decision.",
-  "We can park this for now and revisit if time permits.",
-  "Let’s close the priority items first and then circle back.",
-  "I want to respect everyone’s time and keep this focused.",
-
-  "To summarize, we’ve aligned on the strategy, timelines, and ownership.",
-  "Next steps from our side are clearly defined.",
-  "We’ll share a written recap with timelines shortly.",
-  "The campaign will go live as discussed once approvals are in.",
-  "If there’s nothing else, we’re aligned and good to proceed.",
-  "Let’s reconnect after we have performance data to review."
+  "If there’s nothing else, we’re aligned and good to proceed."
 ];
 
-/* ===============================
-   STATE
-================================ */
-let isRunning = false;
-let order = [];
-let index = 0;
-
-/* ===============================
-   HELPERS
-================================ */
-function shuffle(n){
-  const arr = [...Array(n).keys()];
-  for(let i=arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
-  return arr;
-}
-
-function speakAsync(text){
-  return new Promise(resolve=>{
-    const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.5;
-    u.pitch = 0.95;
-    u.onend = resolve;
-    u.onerror = resolve;
-    speechSynthesis.speak(u);
-  });
-}
-
-/* ===============================
-   PLAY ONE LINE
-================================ */
-async function playLine(i){
-  const img = document.getElementById("visualImage");
-  const box = document.getElementById("textBox");
-
-  const imgNum = String(i+1).padStart(3,"0");
-  img.src = `line_${imgNum}.png`;
-
-  img.style.display="block";
-  requestAnimationFrame(()=>img.style.opacity="1");
-
-  box.textContent = LINES[i];
-  box.classList.add("speaking");
-
-  await speakAsync(LINES[i]);
-
-  img.style.opacity="0";
-  box.classList.remove("speaking");
-  await new Promise(r=>setTimeout(r,400));
-  img.style.display="none";
-}
-
-/* ===============================
-   MAIN LOOP
-================================ */
-async function startMeeting(){
-  if(isRunning) return;
-  isRunning = true;
-
-  while(isRunning){
-    order = shuffle(LINES.length);
-    for(const i of order){
-      if(!isRunning) break;
-      await playLine(i);
-      await new Promise(r=>setTimeout(r,600));
-    }
-  }
-}
-
-function stopMeeting(){
-  isRunning = false;
+/* ===== VOICE OUTPUT ===== */
+function speak(text){
   speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.5;
+  speechSynthesis.speak(u);
 }
 
-/* ===============================
-   EVENTS
-================================ */
-document.getElementById("startBtn").onclick = startMeeting;
-document.getElementById("stopBtn").onclick = stopMeeting;
+/* ===== VOICE INPUT ===== */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const rec = SR ? new SR() : null;
+
+if(rec){
+  rec.lang = "en-US";
+  rec.onresult = e=>{
+    const q = e.results[0][0].transcript.toLowerCase();
+    document.getElementById("heard").textContent = `You asked: "${q}"`;
+    answerQuestion(q);
+  };
+}
+
+document.getElementById("askBtn").onclick = ()=>{
+  if(!rec) alert("Voice input not supported on this browser.");
+  else rec.start();
+};
+
+/* ===== CORE LOGIC ===== */
+function answerQuestion(q){
+  const index = LINES.findIndex(line =>
+    q.split(" ").some(word => line.toLowerCase().includes(word))
+  );
+
+  const box = document.getElementById("box");
+  const img = document.getElementById("visual");
+
+  if(index === -1){
+    box.textContent = "I could not find a matching response in my training data.";
+    speak(box.textContent);
+    img.style.display="none";
+    return;
+  }
+
+  box.textContent = LINES[index];
+  speak(LINES[index]);
+
+  img.src = `images/line_${String(index+1).padStart(3,"0")}.png`;
+  img.style.display="block";
+}
 </script>
 
 </body>
 </html>
-
-
