@@ -2,135 +2,149 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Business Communication Trainer</title>
+<title>Voice Q&A Trainer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
   margin:0;
-  font-family:Inter, system-ui, Arial;
   background:#0f172a;
-  color:#e5e7eb;
   display:flex;
-  flex-direction:column;
   align-items:center;
-  padding:24px;
+  justify-content:center;
+  height:100vh;
 }
-h1{ margin-bottom:14px; }
 
 button{
   background:#2563eb;
   color:white;
-  padding:12px 18px;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  cursor:pointer;
-}
-
-#heard{
-  margin-top:12px;
-  opacity:.75;
-  font-size:14px;
-}
-
-#visual{
-  width:100%;
-  max-width:900px;
-  margin:20px 0;
-  border-radius:16px;
-  display:none;
-}
-
-#box{
-  max-width:900px;
-  background:#020617;
-  padding:20px;
-  border-radius:14px;
+  padding:16px 26px;
   font-size:18px;
-  line-height:1.6;
-  border-left:4px solid #38bdf8;
+  border:none;
+  border-radius:16px;
+  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Business Communication Trainer</h1>
-
-<button id="askBtn">🎤 Ask a Question</button>
-<p id="heard"></p>
-
-<img id="visual" />
-<div id="box">Ask a question to begin.</div>
+<button id="askBtn">🎤 Ask</button>
 
 <script>
-/* ===== CRM LINES ===== */
-const LINES = [
-  "Before we jump into solutions, I want to clearly understand the business context from your perspective.",
-  "To make sure we are aligned, could you share what the primary goal is for this phase?",
-  "From your point of view, what is the biggest challenge you are trying to solve right now?",
-  "What would success look like for you at the end of the next 30 to 60 days?",
-  "Let me quickly outline the agenda so we can use the time effectively.",
-  "Overall, the campaign performed better than last month in terms of conversions.",
-  "There are some gaps, and I want to call them out transparently.",
-  "My recommendation would be to balance proven strategies with controlled testing.",
-  "What we are seeking approval for today is the campaign structure and audience.",
-  "I want to acknowledge this upfront — this should not have happened.",
-  "Rather than reviewing every metric, let’s focus on what actually matters.",
-  "That’s fair feedback, and I appreciate you sharing it openly.",
-  "Let’s align on ownership so there’s no confusion later.",
-  "That’s an important point, but it’s slightly out of scope for today’s call.",
-  "If there’s nothing else, we’re aligned and good to proceed."
+/* ================= FIXED QUESTION → ANSWER MAP ================= */
+
+const QA = [
+{ q:"how do i think clearly when overwhelmed", a:"Pause, reduce inputs, and focus on one small solvable step." },
+{ q:"how do i make better decisions", a:"Compare options calmly and choose the one you can commit to without regret." },
+{ q:"how do i stay focused", a:"Remove distractions and work in short, intentional time blocks." },
+{ q:"how do i stop procrastinating", a:"Begin with the smallest possible action instead of waiting for motivation." },
+{ q:"how do i manage time better", a:"Plan your day in advance and protect high-priority time." },
+
+{ q:"how do i stay calm under pressure", a:"Slow your breathing and respond thoughtfully rather than reacting." },
+{ q:"how do i handle stress", a:"Focus on what you control and release what you cannot." },
+{ q:"how do i deal with anxiety", a:"Ground yourself in the present moment and take steady breaths." },
+{ q:"how do i deal with self doubt", a:"Rely on evidence of progress instead of imagined failure." },
+{ q:"how do i build confidence", a:"Take small consistent actions that reinforce self-trust." },
+
+{ q:"how do i speak clearly", a:"Slow down, articulate each point, and pause when needed." },
+{ q:"how do i speak confidently", a:"Trust your message and give it space to be heard." },
+{ q:"how do i communicate better", a:"Be clear about intent and listen before responding." },
+{ q:"how do i listen properly", a:"Give full attention and avoid planning your reply." },
+{ q:"how do i explain things simply", a:"State the core idea first, then add details." },
+
+{ q:"how do i set goals", a:"Choose goals that are challenging yet achievable." },
+{ q:"how do i stay consistent", a:"Focus on showing up regularly rather than being perfect." },
+{ q:"how do i build discipline", a:"Create routines that reduce the need for motivation." },
+{ q:"how do i stay motivated", a:"Reconnect actions to a meaningful purpose." },
+{ q:"how do i measure progress", a:"Track small improvements over time." },
+
+{ q:"how do i learn faster", a:"Practice actively and apply learning immediately." },
+{ q:"how do i improve daily", a:"Make one small improvement every day." },
+{ q:"how do i handle failure", a:"Treat failure as feedback and adjust your approach." },
+{ q:"how do i recover from mistakes", a:"Acknowledge them, correct course, and move forward." },
+{ q:"how do i grow as a person", a:"Reflect often and act intentionally." },
+
+{ q:"how do i handle uncertainty", a:"Accept uncertainty and focus on controllable actions." },
+{ q:"how do i make peace with uncertainty", a:"Let go of outcomes and commit to effort." },
+{ q:"how do i trust myself", a:"Honor past commitments you kept." },
+{ q:"how do i trust decisions", a:"Make the best choice with available information and move forward." },
+{ q:"how do i stay present", a:"Bring attention back to what you are doing right now." },
+
+{ q:"how do i think long term", a:"Align short-term actions with long-term values." },
+{ q:"how do i stay patient", a:"Focus on progress rather than speed." },
+{ q:"how do i reduce overthinking", a:"Limit options and take decisive action." },
+{ q:"how do i simplify life", a:"Remove what adds noise and keep what adds value." },
+{ q:"how do i stay grounded", a:"Maintain routines that stabilize your day." },
+
+{ q:"how do i stay disciplined", a:"Design systems that make good habits automatic." },
+{ q:"how do i improve focus", a:"Work in distraction-free environments." },
+{ q:"how do i stay mentally strong", a:"Control thoughts and reinforce positive behavior." },
+{ q:"how do i build resilience", a:"Adapt quickly and recover faster from setbacks." },
+{ q:"how do i remain composed", a:"Maintain steady breathing and measured responses." },
+
+{ q:"how do i think logically", a:"Separate facts from emotions before deciding." },
+{ q:"how do i think strategically", a:"Consider long-term impact before short-term gain." },
+{ q:"how do i improve judgment", a:"Reflect on outcomes and learn from them." },
+{ q:"how do i sharpen thinking", a:"Question assumptions and seek clarity." },
+{ q:"how do i think independently", a:"Evaluate information before accepting conclusions." },
+
+{ q:"how do i maintain balance", a:"Allocate time for work, rest, and reflection." },
+{ q:"how do i stay energized", a:"Rest intentionally and manage workload." },
+{ q:"how do i reset mentally", a:"Pause, breathe, and refocus." },
+{ q:"how do i regain control", a:"Reestablish priorities and take decisive action." },
+{ q:"how do i stay composed in chaos", a:"Slow down and stabilize your response." }
 ];
 
-/* ===== VOICE OUTPUT ===== */
+
+/* ================= VOICE OUTPUT ================= */
+
 function speak(text){
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.rate = 1.5;
+  u.rate = 1.4;
   speechSynthesis.speak(u);
 }
 
-/* ===== VOICE INPUT ===== */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const rec = SR ? new SR() : null;
+/* ================= VOICE INPUT ================= */
+
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const rec = SpeechRecognition ? new SpeechRecognition() : null;
 
 if(rec){
   rec.lang = "en-US";
-  rec.onresult = e=>{
-    const q = e.results[0][0].transcript.toLowerCase();
-    document.getElementById("heard").textContent = `You asked: "${q}"`;
-    answerQuestion(q);
+  rec.continuous = false;
+  rec.interimResults = false;
+
+  rec.onresult = e => {
+    const spoken = e.results[0][0].transcript
+      .toLowerCase()
+      .replace(/[^\w\s]/g,"");
+
+    answer(spoken);
   };
 }
 
-document.getElementById("askBtn").onclick = ()=>{
-  if(!rec) alert("Voice input not supported on this browser.");
-  else rec.start();
-};
-
-/* ===== CORE LOGIC ===== */
-function answerQuestion(q){
-  const index = LINES.findIndex(line =>
-    q.split(" ").some(word => line.toLowerCase().includes(word))
-  );
-
-  const box = document.getElementById("box");
-  const img = document.getElementById("visual");
-
-  if(index === -1){
-    box.textContent = "I could not find a matching response in my training data.";
-    speak(box.textContent);
-    img.style.display="none";
+document.getElementById("askBtn").onclick = () => {
+  if(!rec){
+    alert("Voice input not supported on this browser.");
     return;
   }
+  rec.start();
+};
 
-  box.textContent = LINES[index];
-  speak(LINES[index]);
+/* ================= MATCHING LOGIC ================= */
 
-  img.src = `images/line_${String(index+1).padStart(3,"0")}.png`;
-  img.style.display="block";
+function answer(spoken){
+  const item = QA.find(obj => spoken.includes(obj.q));
+
+  if(item){
+    speak(item.a);
+  } else {
+    speak("I do not have an answer for that question.");
+  }
 }
 </script>
 
