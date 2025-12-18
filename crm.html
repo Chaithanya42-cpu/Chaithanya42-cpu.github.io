@@ -1,215 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CRM Tracker — Clean Notes</title>
-  <style>
-    :root{--bg:#f7f9fb;--card:#ffffff;--muted:#6b7280;--accent:#2563eb;--border:rgba(15,23,42,0.06)}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:var(--bg);color:#0f1724}
-    header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--card)}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#60a5fa,#7c3aed);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
-    .title{font-size:16px;font-weight:600}
-    .layout{display:grid;grid-template-columns:320px 280px 1fr;gap:18px;max-width:1400px;margin:20px auto;padding:0 16px}
-    .panel{background:var(--card);border-radius:12px;padding:12px;height:calc(100vh - 120px);overflow:auto;border:1px solid var(--border)}
-    .main{min-height:calc(100vh - 120px)}
-    .search{display:flex;gap:8px;margin-bottom:10px}
-    .search input{flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:inherit}
-    .menu{display:flex;flex-direction:column;gap:8px}
-    .menu button{background:transparent;border:1px solid var(--border);padding:10px 12px;border-radius:8px;color:var(--muted);text-align:left;cursor:pointer}
-    .menu button.active{background:linear-gradient(90deg,rgba(37,99,235,0.06),rgba(124,58,237,0.03));border-color:rgba(37,99,235,0.16);color:#0b2447}
-    .submenu-list{display:flex;flex-direction:column;gap:6px}
-    .subitem{padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;text-align:left}
-    .subitem.active{background:rgba(37,99,235,0.08);color:#0b2447;border-color:rgba(37,99,235,0.12);font-weight:600}
-    .small{font-size:13px;color:var(--muted)}
-    textarea{width:100%;height:calc(100vh - 220px);padding:14px;border-radius:10px;border:1px solid var(--border);background:transparent;color:inherit;font-size:15px;line-height:1.5;resize:vertical}
-    footer{padding:14px 24px;color:var(--muted);font-size:13px;text-align:center}
-    @media (max-width:1100px){.layout{grid-template-columns:1fr 300px;}.submenu{display:none}}
-    @media (max-width:700px){.layout{grid-template-columns:1fr;}.panel{height:auto}}
-    .actions{display:flex;gap:8px;margin-top:8px}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Business Communication Practice</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Inter, system-ui, Arial, sans-serif;
+    background: linear-gradient(180deg, #0f1724, #020617);
+    color: #e6eef8;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 24px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.04);
+    border-radius: 14px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  h1 {
+    margin-top: 0;
+    font-size: 26px;
+  }
+
+  .subtitle {
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    background: #ffb020;
+    border: none;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #081020;
+    font-size: 16px;
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .conversation {
+    margin-top: 24px;
+    padding: 16px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    min-height: 260px;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  .line {
+    margin-bottom: 10px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  footer {
+    text-align: center;
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 20px;
+  }
+</style>
 </head>
+
 <body>
-  <header>
-    <div class="brand">
-      <div class="logo">CT</div>
-      <div>
-        <div class="title">CRM Tracker — Clean Notes</div>
-        <div class="small">Main menu → sub-menu → notepad. Notes auto-save locally.</div>
-      </div>
+
+<div class="container">
+  <div class="card">
+    <h1>Business Communication Practice</h1>
+    <div class="subtitle">
+      Click “Start Meeting” to hear professional business communication spoken out loud.
     </div>
-    <div class="small">Storage: <strong id="storageInfo">localStorage</strong></div>
-  </header>
 
-  <div class="layout">
-    <aside class="panel">
-      <div class="search"><input id="searchInput" placeholder="Filter categories..." /></div>
-      <div class="small" style="margin-bottom:8px">Categories</div>
-      <div class="menu" id="menuList"></div>
-      <div class="actions">
-        <button id="exportAll">Export</button>
-        <button id="importBtn">Import</button>
-      </div>
-    </aside>
+    <button id="startBtn" class="btn">Start Meeting</button>
+<button id="stopBtn" class="btn" style="margin-left:8px;background:#ef4444;color:#fff">
+  Stop
+</button>
 
-    <aside class="panel" id="submenuPane">
-      <div class="small" style="margin-bottom:8px">Sub-Menu</div>
-      <div id="submenuList" class="submenu-list"></div>
-      <div class="actions">
-        <button id="addSub">Add</button>
-        <button id="removeSub">Remove</button>
-      </div>
-    </aside>
 
-    <main class="panel main">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div id="pageTitle" style="font-size:18px;font-weight:600">Designs</div>
-          <div id="pageSubtitle" class="small">Select a sub-item to open its notepad.</div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button id="saveBtn">Save</button>
-          <button id="clearBtn">Clear</button>
-        </div>
-      </div>
-
-      <div style="margin-top:14px">
-        <label class="small">Notes</label>
-        <textarea id="noteArea" placeholder="Type notes for the selected category → sub-item (auto-saved)"></textarea>
-      </div>
-    </main>
+    <div id="conversation" class="conversation"></div>
   </div>
 
-  <footer>CRM Tracker — local notes. Export/Import to move data between devices.</footer>
+  <footer>
+    Speak like a senior professional • CRM • Strategy • Client Calls
+  </footer>
+</div>
 
-  <script>
-    // Main categories and submenus
-    const categories = [
-      'Channels','Purpose','Journey Type','References',
-      'Designs','Copies','Templates','Getting Approval from Client',
-      'Client Segments','Campaign/Journeys Analysis','Campaign Execution',
-      'RFM','Cohort','Funnel','Metrics','A/B Testing','Flow Analysis','NPS',
-      'Technical Issues','Technical Advantages',
-      'Note Taking','Planning'
-    ];
+<script>
+/* ==================================================
+   COMPLETE BUSINESS COMMUNICATION MASTER LIST
+   (ALL LINES – ONE SET – NO CATEGORIES)
+================================================== */
 
-    const defaultSubsections = {
-      'Channels': ['Email','SMS','WhatsApp','Push','In-app','Web'],
-      'Purpose': ['Event','Educational','Offer','Transactional','Retention','Other'],
-      'Journey Type': ['All','Special Events','Welcome','Abandonment','Re-engagement','Lifecycle'],
-      'References': ['Research Academies','ChatGPT','YouTube','Customer Care'],
+const COMMUNICATION_LINES = [
 
-      'Designs': ['Channels & Types','Purpose','Journey Types','Overview','References'],
-      'Copies': ['Channels & Types','Purpose','Journey Types','Variants','Overview'],
-      'Templates': ['Email','SMS/WhatsApp','Push','In-app','Overview'],
-      'Getting Approval from Client': ['Copy','Design','Strategy','Approvals Log','Comments'],
-      'Client Segments': ['RFM Segments','Cohort Segments','Funnel Segments','Test Segments','Notes'],
-      'Campaign/Journeys Analysis': ['Benchmarks','Historical Data','Metrics','Insights','Recommendations'],
-      'Campaign Execution': ['Pre-checklist','Execution Checklist','Post-checklist','Issues','Notes'],
-      'RFM': ['Summary','Segments','Actions','Notes','Results'],
-      'Cohort': ['Weekly','Monthly','Retention Notes','Actions','Results'],
-      'Funnel': ['Top','Middle','Bottom','Drop-offs','Fixes'],
-      'Metrics': ['Conversions','Engagement','Revenue','Custom Metrics','Notes'],
-      'A/B Testing': ['Hypotheses','Variants','Results','Learnings','Notes'],
-      'Flow Analysis': ['Flow Map','Drop-offs','Optimizations','Notes','Results'],
-      'NPS': ['Responses','Promoters','Detractors','Actions','Trends'],
-      'Technical Issues': ['Open','In Progress','Resolved','Logs','Notes'],
-      'Technical Advantages': ['Ideas','Integrations','Automations','Notes','Results'],
+  // Discovery / Understanding
+  "Before we jump into solutions, I want to clearly understand the business context from your perspective.",
+  "To make sure we are aligned, could you share what the primary goal is for this phase?",
+  "From your point of view, what is the biggest challenge you are trying to solve right now?",
+  "What would success look like for you at the end of the next 30 to 60 days?",
+  "Are there any constraints or limitations we should be aware of before planning execution?",
+  "What has worked well so far, and where do you feel things have not met expectations?",
+  "I want to understand the customer behavior better before suggesting any next steps.",
 
-      // New single-notepad categories
-      'Note Taking': ['Notes'],
-      'Planning': ['Notes']
-    };
+  // Agenda / Structure
+  "Let me quickly outline the agenda so we can use the time effectively.",
+  "The objective of today’s call is to align on priorities and next steps.",
+  "We will cover performance, upcoming plans, and approvals in that order.",
+  "I want to be mindful of time, so let’s focus on the key decisions needed today.",
+  "Does this agenda work for everyone before we proceed?",
+  "If anything feels out of scope, we can park it and revisit later.",
 
-    // DOM refs
-    const menuList = document.getElementById('menuList');
-    const submenuList = document.getElementById('submenuList');
-    const pageTitle = document.getElementById('pageTitle');
-    const noteArea = document.getElementById('noteArea');
-    const saveBtn = document.getElementById('saveBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const searchInput = document.getElementById('searchInput');
-    const addSub = document.getElementById('addSub');
-    const removeSub = document.getElementById('removeSub');
-    const exportAllBtn = document.getElementById('exportAll');
-    const importBtn = document.getElementById('importBtn');
+  // Performance / Data
+  "Let me start with the outcome first, and then I’ll explain the drivers behind it.",
+  "Overall, the campaign performed better than last month in terms of conversions.",
+  "Where we saw a dip was in open rates, mainly due to audience saturation.",
+  "What worked particularly well here was the targeting and timing.",
+  "Compared to the previous cycle, engagement has improved among repeat users.",
+  "The key learning from this campaign is something we can directly apply going forward.",
+  "There are some gaps, and I want to call them out transparently.",
 
-    const STORAGE_KEY = 'crm_tracker_notes_v1';
+  // Strategy
+  "Based on what we’re seeing in the data, there are two clear approaches we can take.",
+  "From a strategic standpoint, this aligns well with your long-term retention goals.",
+  "If the objective is revenue growth, then this is the lever we should prioritize.",
+  "My recommendation would be to balance proven strategies with controlled testing.",
+  "This gives us an opportunity to improve performance without taking unnecessary risk.",
+  "We should think of this in phases rather than treating it as a one-time activity.",
+  "This approach allows us to scale what works while learning continuously.",
 
-    let state = {
-      selectedCategory: categories[0],
-      selectedSub: (defaultSubsections[categories[0]] && defaultSubsections[categories[0]][0]) || 'Notes',
-      data: {} // {category:{sub:{text:''}}}
-    };
+  // Approval / Decisions
+  "To move forward, we need confirmation on the final creative and send time.",
+  "What we are seeking approval for today is the campaign structure and audience.",
+  "Once this is approved, we can proceed without any further dependency.",
+  "Is there any concern or change you would like before we lock this?",
+  "Can we align on this today so we stay on track with the timeline?",
+  "If this works for you, we’ll proceed exactly as discussed.",
 
-    function loadFromStorage(){
-      try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) state.data = JSON.parse(raw); }catch(e){console.error(e)}
+  // Issues / Escalation
+  "I want to acknowledge this upfront — this should not have happened.",
+  "You are right to call this out, and I take responsibility for it.",
+  "The root cause of this issue was a process gap on our side.",
+  "What’s important now is how we fix this and prevent it from recurring.",
+  "We’ve already taken corrective steps, and this will not repeat.",
+  "I’ll personally ensure this stays on track from here.",
+  "The revised timeline is clear, and we are aligned on next steps.",
+
+  // Alignment / Expectations
+  "Just to align expectations clearly, this is how we propose handling execution.",
+  "Going forward, this will be the process we follow for all campaigns.",
+  "To avoid any confusion later, we’ll document and share all updates in writing.",
+  "Our role will be to strategize, execute, and report on performance.",
+  "This is what you can expect from us on a weekly basis.",
+  "Please let us know if this structure works for you.",
+
+  // Insights
+  "Rather than reviewing every metric, let’s focus on what actually matters.",
+  "The key insight here is how user intent changes across channels.",
+  "What this data tells us is that timing matters more than frequency.",
+  "This metric is important because it directly impacts revenue.",
+  "If we connect these data points, the pattern becomes very clear.",
+  "This insight helps us make a more informed decision moving forward.",
+
+  // Feedback
+  "I’d really appreciate your honest feedback on this approach.",
+  "Does this align with what you had in mind?",
+  "That’s fair feedback, and I appreciate you sharing it openly.",
+  "We’ll take this input seriously and refine our approach.",
+  "Let’s treat this as an opportunity to improve, not a setback.",
+  "We’ll reflect this feedback in the next iteration.",
+
+  // Internal Coordination
+  "Today’s top priority is completing the campaign assets on time.",
+  "Let’s align on ownership so there’s no confusion later.",
+  "Design will deliver by 4 PM, and copy by 5 PM.",
+  "If anyone is blocked, please flag it immediately.",
+  "I’ll review everything and share feedback in one consolidated round.",
+  "Let’s stay focused so we don’t miss timelines.",
+
+  // Time Management
+  "That’s an important point, but it’s slightly out of scope for today’s call.",
+  "To stay on track, let’s come back to the main decision.",
+  "We can park this for now and revisit if time permits.",
+  "Let’s close the priority items first and then circle back.",
+  "I want to respect everyone’s time and keep this focused.",
+
+  // Closure
+  "To summarize, we’ve aligned on the strategy, timelines, and ownership.",
+  "Next steps from our side are clearly defined.",
+  "We’ll share a written recap with timelines shortly.",
+  "The campaign will go live as discussed once approvals are in.",
+  "If there’s nothing else, we’re aligned and good to proceed.",
+  "Let’s reconnect after we have performance data to review."
+];
+
+/* ==================================================
+   CORE ENGINE (CONTINUOUS + RANDOM + NO REPEAT)
+================================================== */
+
+const conversationBox = document.getElementById("conversation");
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+
+let isRunning = false;
+const speechEnabled = "speechSynthesis" in window;
+
+// Shuffle once per cycle
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function speakAsync(text) {
+  return new Promise(resolve => {
+    if (!speechEnabled || !isRunning) return resolve();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.5;    // 1.5x speed
+    u.pitch = 0.95;
+    u.volume = 1;
+    u.onend = resolve;
+    u.onerror = resolve;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+function delay(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+async function startMeeting() {
+  if (isRunning) return;
+  isRunning = true;
+  startBtn.disabled = true;
+  conversationBox.innerHTML = "";
+
+  while (isRunning) {
+    const cycle = shuffle(COMMUNICATION_LINES);
+
+    for (const line of cycle) {
+      if (!isRunning) break;
+
+      const div = document.createElement("div");
+      div.className = "line";
+      div.textContent = line;
+      conversationBox.appendChild(div);
+      conversationBox.scrollTop = conversationBox.scrollHeight;
+
+      await speakAsync(line);
+      await delay(500);
     }
-    function saveToStorage(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data)); flashSaved(); }catch(e){console.error(e)} }
-    function flashSaved(){ pageTitle.style.opacity=0.6; setTimeout(()=>pageTitle.style.opacity=1,300); }
 
-    function renderMenu(filter=''){
-      menuList.innerHTML='';
-      categories.filter(c=>c.toLowerCase().includes(filter.toLowerCase())).forEach(cat=>{
-        const btn = document.createElement('button'); btn.textContent=cat; btn.className = cat===state.selectedCategory? 'active':'';
-        btn.onclick = ()=>{ selectCategory(cat); };
-        menuList.appendChild(btn);
-      });
-    }
+    await delay(800); // pause between cycles
+  }
 
-    function renderSubmenu(){
-      submenuList.innerHTML='';
-      const subs = defaultSubsections[state.selectedCategory] || ['Notes'];
-      subs.forEach(s=>{
-        const div = document.createElement('div'); div.className='subitem'; div.textContent=s;
-        if(s===state.selectedSub) div.classList.add('active');
-        div.onclick = ()=>{ selectSub(s); };
-        submenuList.appendChild(div);
-      });
-    }
+  startBtn.disabled = false;
+}
 
-    function selectCategory(cat){
-      state.selectedCategory = cat;
-      const subs = defaultSubsections[cat] || ['Notes'];
-      state.selectedSub = subs[0];
-      pageTitle.textContent = cat + ' — ' + state.selectedSub;
-      renderMenu(searchInput.value);
-      renderSubmenu();
-      loadNote();
-    }
+function stopMeeting() {
+  isRunning = false;
+  window.speechSynthesis.cancel();
+  startBtn.disabled = false;
+}
 
-    function selectSub(sub){ state.selectedSub = sub; pageTitle.textContent = state.selectedCategory + ' — ' + state.selectedSub; renderSubmenu(); loadNote(); }
+startBtn.addEventListener("click", startMeeting);
+stopBtn.addEventListener("click", stopMeeting);
+</script>
 
-    function getCurrentObj(){
-      if(!state.data[state.selectedCategory]) state.data[state.selectedCategory] = {};
-      if(!state.data[state.selectedCategory][state.selectedSub]) state.data[state.selectedCategory][state.selectedSub] = {text:''};
-      return state.data[state.selectedCategory][state.selectedSub];
-    }
-
-    function loadNote(){ const obj = getCurrentObj(); noteArea.value = obj.text || ''; }
-    function saveCurrent(){ const obj = getCurrentObj(); obj.text = noteArea.value; saveToStorage(); }
-
-    noteArea.addEventListener('input', debounce(saveCurrent,700));
-    saveBtn.onclick = saveCurrent;
-
-    clearBtn.onclick = ()=>{ if(confirm('Clear notes for "'+state.selectedCategory+' / '+state.selectedSub+'"?')){ if(state.data[state.selectedCategory]) delete state.data[state.selectedCategory][state.selectedSub]; noteArea.value=''; saveToStorage(); } }
-
-    addSub.onclick = ()=>{ const name = prompt('New sub-item name'); if(!name) return; const arr = defaultSubsections[state.selectedCategory] || []; arr.push(name); defaultSubsections[state.selectedCategory]=arr; renderSubmenu(); selectSub(name); }
-    removeSub.onclick = ()=>{ if(!confirm('Remove sub-item "'+state.selectedSub+'" from '+state.selectedCategory+'?')) return; const arr = defaultSubsections[state.selectedCategory] || []; defaultSubsections[state.selectedCategory] = arr.filter(x=>x!==state.selectedSub); if(state.data[state.selectedCategory]) delete state.data[state.selectedCategory][state.selectedSub]; const newSub = (defaultSubsections[state.selectedCategory] && defaultSubsections[state.selectedCategory][0]) || 'Notes'; selectSub(newSub); saveToStorage(); }
-
-    exportAllBtn.onclick = ()=>{ const dataStr = JSON.stringify(state.data,null,2); const blob = new Blob([dataStr],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='crm_tracker_notes.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-    importBtn.onclick = ()=>{ const input = document.createElement('input'); input.type='file'; input.accept='application/json'; input.onchange = e=>{ const file = e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=ev=>{ try{ const imported = JSON.parse(ev.target.result); state.data = Object.assign({}, state.data, imported); saveToStorage(); alert('Import successful'); }catch(err){ alert('Invalid JSON'); } }; reader.readAsText(file); }; input.click(); }
-
-    function debounce(fn,ms){ let t; return function(){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,arguments),ms); }; }
-
-    searchInput.addEventListener('input', (e)=>{ renderMenu(e.target.value); });
-    document.addEventListener('keydown', (e)=>{ if((e.ctrlKey||e.metaKey) && e.key==='s'){ e.preventDefault(); saveCurrent(); } });
-
-    // initial
-    loadFromStorage(); renderMenu(); renderSubmenu(); selectCategory(state.selectedCategory);
-    document.getElementById('storageInfo').textContent = STORAGE_KEY + ' (localStorage in this browser)';
-  </script>
 </body>
 </html>
+
