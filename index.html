@@ -207,7 +207,7 @@ async function playLine(i){
   const box = document.getElementById("textBox");
 
   const imgNum = String(i+1).padStart(3,"0");
-  img.src = `images/line_${imgNum}.png`;
+  img.src = `line_${imgNum}.png`;
 
   img.style.display="block";
   requestAnimationFrame(()=>img.style.opacity="1");
@@ -254,3 +254,4 @@ document.getElementById("stopBtn").onclick = stopMeeting;
 
 </body>
 </html>
+
