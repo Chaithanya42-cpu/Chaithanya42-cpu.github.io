@@ -1,128 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image → Styled Text Converter (Offline)</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 24px;
-    }
-    .container {
-      max-width: 720px;
-      margin: auto;
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    }
-    h1 {
-      font-size: 20px;
-      margin-bottom: 16px;
-    }
-    input[type="file"] {
-      margin-bottom: 12px;
-    }
-    img {
-      max-width: 100%;
-      max-height: 260px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      margin-bottom: 12px;
-    }
-    button {
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-bottom: 12px;
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    textarea {
-      width: 100%;
-      height: 260px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      padding: 12px;
-      font-family: monospace;
-      font-size: 13px;
-      resize: vertical;
-    }
-    .note {
-      font-size: 12px;
-      color: #666;
-      margin-top: 12px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Data Analyzer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="container">
-    <h1>Image → Styled Text Converter (Offline)</h1>
+<body class="bg-gray-50 min-h-screen p-8">
 
-    <input type="file" accept="image/*" id="imageInput" />
+    <div class="max-w-6xl mx-auto bg-white p-8 rounded-xl shadow-md">
+        <h1 class="text-2xl font-bold mb-2 text-gray-800">Flow Data Aggregator</h1>
+        <p class="text-gray-600 mb-6">Upload your CSV to get total sums grouped by <strong>Flow Name</strong>.</p>
 
-    <div>
-      <img id="preview" style="display:none" />
+        <!-- Upload Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="border-2 border-dashed border-blue-200 p-6 rounded-lg text-center">
+                <label class="block mb-2 font-semibold">Upload CSV File</label>
+                <input type="file" id="csvFile" accept=".csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+            <div class="flex flex-col">
+                <label class="block mb-2 font-semibold">Or Paste Data Here</label>
+                <textarea id="pasteArea" placeholder="Paste CSV rows here..." class="flex-1 p-2 border rounded-md h-24 text-sm font-mono"></textarea>
+                <button onclick="processPaste()" class="mt-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">Analyze Pasted Data</button>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div id="controls" class="hidden mb-4 flex justify-between items-center">
+            <h2 class="text-xl font-bold">Analysis Results</h2>
+            <div class="space-x-2">
+                <button onclick="copyToClipboard()" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Copy to Clipboard</button>
+                <button onclick="downloadCSV()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Download CSV</button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="overflow-x-auto border rounded-lg">
+            <table id="resultTable" class="min-w-full divide-y divide-gray-200 hidden">
+                <thead class="bg-gray-50" id="tableHead"></thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="tableBody"></tbody>
+            </table>
+        </div>
     </div>
 
-    <button id="extractBtn" disabled>Extract Text</button>
+    <script>
+        let processedData = [];
 
-    <textarea id="output" placeholder="Styled text output will appear here"></textarea>
+        // Handle File Upload
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            Papa.parse(file, {
+                header: true,
+                dynamicTyping: true,
+                complete: function(results) {
+                    analyzeData(results.data);
+                }
+            });
+        });
 
-    <div class="note">
-      Formatting rules:<br />
-      Bold → *text*<br />
-      Italic → _text_<br />
-      Bold + Italic → _*text*_
-    </div>
-  </div>
+        // Handle Paste
+        function processPaste() {
+            const text = document.getElementById('pasteArea').value;
+            Papa.parse(text, {
+                header: true,
+                dynamicTyping: true,
+                complete: function(results) {
+                    analyzeData(results.data);
+                }
+            });
+        }
 
-  <script>
-    const imageInput = document.getElementById('imageInput');
-    const preview = document.getElementById('preview');
-    const extractBtn = document.getElementById('extractBtn');
-    const output = document.getElementById('output');
+        function analyzeData(rawData) {
+            if (!rawData || rawData.length === 0) return;
 
-    imageInput.addEventListener('change', () => {
-      const file = imageInput.files[0];
-      if (!file) return;
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = 'block';
-      extractBtn.disabled = false;
-    });
+            // Grouping Logic
+            const groupingKey = "Flow Name";
+            const totals = {};
 
-    extractBtn.addEventListener('click', () => {
-      extractBtn.disabled = true;
-      extractBtn.textContent = 'Extracting…';
+            // Identify columns to sum (all numeric ones except ID related stuff)
+            const keys = Object.keys(rawData[0]);
+            const numericKeys = keys.filter(key => 
+                typeof rawData[0][key] === 'number' && 
+                !key.toLowerCase().includes('id') && 
+                key !== groupingKey
+            );
 
-      // MOCK OUTPUT — replace with real OCR when wiring backend
-      const mockedOutput = `_*No more toe pain during long hours of standing.*_
+            rawData.forEach(row => {
+                const name = row[groupingKey];
+                if (!name) return;
 
-That’s what *Closed-toe heels* are made for.
+                if (!totals[name]) {
+                    totals[name] = { [groupingKey]: name };
+                    numericKeys.forEach(k => totals[name][k] = 0);
+                }
 
-They hold your foot in place, reduce pressure on your toes, and feel comfortable from morning meetings to evening plans.
+                numericKeys.forEach(k => {
+                    totals[name][k] += (row[k] || 0);
+                });
+            });
 
-_Stylish enough for work._
-_Supportive enough for all day._
+            // Convert back to array
+            processedData = Object.values(totals);
+            displayData(processedData, [groupingKey, ...numericKeys]);
+        }
 
-Winter heels that don’t ask you to compromise.
+        function displayData(data, headers) {
+            const head = document.getElementById('tableHead');
+            const body = document.getElementById('tableBody');
+            const table = document.getElementById('resultTable');
+            const controls = document.getElementById('controls');
 
-*Shop Closed-Toe Collection*`;
+            // Clear previous
+            head.innerHTML = '';
+            body.innerHTML = '';
 
-      setTimeout(() => {
-        output.value = mockedOutput;
-        extractBtn.textContent = 'Extract Text';
-        extractBtn.disabled = false;
-      }, 700);
-    });
-  </script>
+            // Header row
+            const trHead = document.createElement('tr');
+            headers.forEach(h => {
+                const th = document.createElement('th');
+                th.className = "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider";
+                th.innerText = h;
+                trHead.appendChild(th);
+            });
+            head.appendChild(trHead);
+
+            // Body rows
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                headers.forEach(h => {
+                    const td = document.createElement('td');
+                    td.className = "px-4 py-2 whitespace-nowrap text-sm text-gray-700";
+                    // Format numbers to 2 decimal places if needed
+                    const val = row[h];
+                    td.innerText = typeof val === 'number' ? val.toLocaleString(undefined, {maximumFractionDigits: 2}) : val;
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+            });
+
+            table.classList.remove('hidden');
+            controls.classList.remove('hidden');
+        }
+
+        function downloadCSV() {
+            const csv = Papa.unparse(processedData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "flow_analysis.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function copyToClipboard() {
+            const csv = Papa.unparse(processedData);
+            navigator.clipboard.writeText(csv).then(() => {
+                alert("Data copied to clipboard in CSV format!");
+            });
+        }
+    </script>
 </body>
 </html>
